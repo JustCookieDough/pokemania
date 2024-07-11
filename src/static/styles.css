@@ -199,10 +199,8 @@ body {
     background: radial-gradient(circle, transparent 75%, var(--background));
 }
 
-.login-box {
-    width: 25rem;
-    height: 29rem;
-    padding: 3rem 0 3rem;
+.main-box {
+    padding: 3rem 2.5rem 3rem;
     background-color: var(--bg-accent);
     border-radius: 2rem;
 
@@ -215,15 +213,12 @@ body {
     justify-content: space-between;
 }
 
-.login-box.small {
-    height: 11rem;
-}
-
-.login-box h1 {
-    margin: 0;
+.main-box {
+    margin-top: 0;
 }
 
 .discord-button {
+    margin-top: 2rem;
     z-index: 7;
     height: 2.5rem;
     padding: .75rem 1.5rem .75rem;
@@ -255,7 +250,7 @@ body {
 }
 
 .data-disclosure {
-    width: 80%;
+    width: 20rem;
     padding: 1rem 0 1rem;
     border-top: dotted;
     border-bottom: dotted;
@@ -275,7 +270,7 @@ body {
 }
 
 .divider {
-    width: 80%;
+    width: 20rem;
     border-top: dotted;
     border-color: var(--midtone);
 }
