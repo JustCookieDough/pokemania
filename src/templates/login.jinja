@@ -1,11 +1,11 @@
 {% extends "base.jinja" %}
 
-{% set hasMiniNav, screenCentered, squid_bg = True, True, True %}
+{% set hasMiniNav, screenCentered, squid_bg, skipDataDisclosure = True, True, True, False %}
 
 {% block content %}
-<div class="login-box">
+<div class="login-box {{'small' if skipDataDisclosure}}">
     <h1>Sign In</h1>
-    <div class="data-disclosure">
+    <div class="data-disclosure {{'hidden' if skipDataDisclosure}}">
     <h3>What Data Are We Using?</h3>
     <ul>
         <li>Discord Username</li>
@@ -15,6 +15,7 @@
     <p>We use this data for bot integration and identity verification. Also, sign ins through Discord allows us
     to keep no important data, namely passwords, on our servers.</p>
     </div>
+    <div class="divider {{'hidden' if not skipDataDisclosure}}"></div>
     <a class="discord-button"><i class="fa-brands fa-discord"></i><p>Sign In with Discord</p></a>
 </div>
 {% endblock content %}

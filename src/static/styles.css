@@ -29,6 +29,10 @@ a {
     }
 }
 
+.hidden {
+    display: none;
+}
+
 body {
     padding: 0;
     margin: 0;
@@ -211,6 +215,10 @@ body {
     justify-content: space-between;
 }
 
+.login-box.small {
+    height: 11rem;
+}
+
 .login-box h1 {
     margin: 0;
 }
@@ -264,4 +272,10 @@ body {
 
 .data-disclosure p {
     margin-top: .5rem;
+}
+
+.divider {
+    width: 80%;
+    border-top: dotted;
+    border-color: var(--midtone);
 }
