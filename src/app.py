@@ -25,7 +25,7 @@ def not_found(e):
   if (e.code == 404):
     return render_template("404.jinja")
   else:
-     return render_template("error.jinja", code=code)
+     return render_template("error.jinja", code=e.code)
 
 
 
