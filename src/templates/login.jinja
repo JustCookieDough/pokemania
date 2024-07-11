@@ -1,5 +1,20 @@
 {% extends "base.jinja" %}
 
+{% set hasMiniNav, screenCentered, squid_bg = True, True, True %}
+
 {% block content %}
-login <br> ill figure out Discord OAuth2 in the morning lmao.
+<div class="login-box">
+    <h1>Sign In</h1>
+    <div class="data-disclosure">
+    <h3>What Data Are We Using?</h3>
+    <ul>
+        <li>Discord Username</li>
+        <li>Discord User ID</li>
+    </ul>
+    <h3>Why Are We Using It?</h3>
+    <p>We use this data for bot integration and identity verification. Also, sign ins through Discord allows us
+    to keep no important data, namely passwords, on our servers.</p>
+    </div>
+    <a class="discord-button"><i class="fa-brands fa-discord"></i><p>Sign In with Discord</p></a>
+</div>
 {% endblock content %}

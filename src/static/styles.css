@@ -1,0 +1,267 @@
+
+:root {
+    --background: #0a1127; /* used to be #0b132b */
+    --background-tp: #0a11277f; 
+    --bg-accent-dark: #141C36;
+    --bg-accent: #1C2541;
+    --midtone: #3A506B;
+    --light-midtone: #4695A2;
+    --accent: #52dad8;
+    --text: #FFFFFF;
+    
+
+    font-size: medium;
+    font-family: "Plus Jakarta Sans", "Helvetica", sans-serif;
+    font-weight: 500;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+@keyframes pan {
+    0% {
+        background-position: 0% 0%;
+    }
+    100% {
+        background-position: 100% 0%;
+    }
+}
+
+body {
+    padding: 0;
+    margin: 0;
+    background-color: var(--background);
+    color: var(--text);
+    width: 100vw;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.navbar {
+    width: 65%;
+    padding: 0 17.5% 0;
+    height: 4rem;
+
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: 1fr;
+    grid-template-areas: "left center right";
+    align-items: center;
+
+    border-bottom: dotted;
+    border-color: var(--bg-accent);
+    border-width: .15rem;
+    background-color: var(--background);
+    z-index: 10;
+}
+
+.navbar * {
+    z-index: 10;
+}
+
+.home-anchor { 
+    grid-column: 2 / 3;
+    justify-self: center;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+
+    height: 3rem;
+    padding: .25rem .25rem .25rem;
+
+    color: var(--accent);
+    transition: color .15s ease-in;
+}
+
+.home-anchor:hover {
+    color: var(--text);
+}
+
+.home-anchor * {
+    background-color: none;
+}
+
+.home-anchor i {
+    font-size: 2rem;
+    
+}
+
+.nav-left {
+    justify-self: start;
+
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.nav-right {
+    justify-self: end;
+
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: center;
+}
+
+.nav-link {
+    margin: 0 .75rem 0;
+    padding: .15rem 0 .15rem;
+    font-size: 1rem;
+    font-weight: 300;
+
+    transition: color .15s ease-in;
+}
+
+.nav-link:hover {
+    color: var(--accent);
+}
+
+/* .nav-link.login {
+    font-weight: 500;
+} */
+
+.navbar.mini-nav {
+    height: 2.5rem;
+}
+
+
+.navbar.mini-nav .home-anchor {
+    height: 2rem;
+    padding: .15rem .15rem .15rem;
+}
+
+.navbar.mini-nav .home-anchor i {
+    font-size: 1.5rem;
+}
+
+.navbar.mini-nav .nav-left,
+.navbar.mini-nav .nav-right {
+    display: none;
+}
+
+
+.content {
+    margin-top: 1rem;
+    z-index: 0;
+}
+
+.content.screen-centered {
+    position: absolute;
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
+
+    display: grid;
+    grid: auto max-content auto / auto max-content auto;
+    grid-template-areas: 
+        ". . ."
+        ". center ."
+        ". . .";
+}
+
+.content.screen-centered :first-child{
+    grid-area: center;
+}
+
+.squid-bg {
+    z-index: -5;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    background-image: url("squid-tileable-white.svg");
+    background-size: 10rem;
+    opacity: 5%;
+    /* animation: pan 360s linear infinite; */
+}
+
+.squid-bg-grad {
+    z-index: -4;
+
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    background: radial-gradient(circle, transparent 75%, var(--background));
+}
+
+.login-box {
+    width: 25rem;
+    height: 29rem;
+    padding: 3rem 0 3rem;
+    background-color: var(--bg-accent);
+    border-radius: 2rem;
+
+    /* blur shadow */
+    box-shadow: 0 0 3rem 3rem var(--background);
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.login-box h1 {
+    margin: 0;
+}
+
+.discord-button {
+    z-index: 7;
+    height: 2.5rem;
+    padding: .75rem 1.5rem .75rem;
+    border-radius: .75rem;
+    width: 17.5rem;
+    margin-bottom: 1rem;
+
+    background-color: var(--accent);
+    color: var(--background);
+    border: solid;
+    border-color: var(--background);
+    box-shadow: 0 1rem var(--background);
+
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.discord-button i {
+    height: 2.5rem;
+    width: 2.5rem;
+    font-size: 2.5rem;
+}
+
+.discord-button p {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.data-disclosure {
+    width: 80%;
+    padding: 1rem 0 1rem;
+    border-top: dotted;
+    border-bottom: dotted;
+    border-color: var(--midtone);
+}
+
+.data-disclosure h3 {
+    margin: 1rem 0 0;
+}
+
+.data-disclosure ul {
+    margin: .5rem 0 2rem;
+}
+
+.data-disclosure p {
+    margin-top: .5rem;
+}

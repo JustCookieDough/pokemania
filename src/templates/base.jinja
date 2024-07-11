@@ -15,12 +15,13 @@
 <!-- end fonts + icons -->
 
 {% block styles %}
-<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='base.css') }}">
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
 {% endblock styles %}
 {% endblock head%}
 </head>
 <body>
-    <div class="navbar">
+    {% block nav %}
+    <div class="navbar{{' mini-nav' if hasMiniNav}}">
         <div class="nav-left">
             <a class="nav-link nav-hoverable" href="/">Home</a>
             <a class="nav-link nav-hoverable" href="/bets">Bets</a>
@@ -28,13 +29,13 @@
         </div>
         <a class="home-anchor nav-hoverable" href="/"><i class="fa-solid fa-squid"></i></a>
         <div class="nav-right">
-            <a class="nav-link nav-hoverable login" href="/login">Log In</a>            
+            <a class="nav-link nav-hoverable login" href="/login">Sign In</a>            
         </div>
     </div>
-    <div class="content">
-    {% block content %}
-
-    {% endblock content%}
+    {% endblock nav %}
+    <div class="content {{'screen-centered' if screenCentered}}">
+    {% block content %}{% endblock content%}
     </div>
+    {% if squid_bg %}<div class="squid-bg"></div><div class="squid-bg-grad"></div>{% endif %}
     </body>
 </html>
