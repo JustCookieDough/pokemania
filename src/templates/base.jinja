@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+{% block head %}
+<meta charset="utf-8">
+<title>{% block title %}Bracket{% endblock title %}</title>
+<link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+
+<!-- fonts + icons -->
+<script src="https://kit.fontawesome.com/cb4da4b0f0.js" crossorigin="anonymous"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
+<!-- end fonts + icons -->
+
+{% block styles %}
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='base.css') }}">
+{% endblock styles %}
+{% endblock head%}
+</head>
+<body>
+    <div class="navbar">
+        <div class="nav-left">
+            <a class="nav-link nav-hoverable" href="/">Home</a>
+            <a class="nav-link nav-hoverable" href="/bets">Bets</a>
+            <a class="nav-link nav-hoverable" href="/leaderboard">Leaderboard</a>
+        </div>
+        <a class="home-anchor nav-hoverable" href="/"><i class="fa-solid fa-squid"></i></a>
+        <div class="nav-right">
+            <a class="nav-link nav-hoverable login" href="/login">Log In</a>            
+        </div>
+    </div>
+    <div class="content">
+    {% block content %}
+
+    {% endblock content%}
+    </div>
+    </body>
+</html>
