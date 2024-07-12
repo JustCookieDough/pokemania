@@ -1,0 +1,22 @@
+{% extends "base.jinja" %}
+
+{% set hasMiniNav, screen_centered, squid_bg = False, True, True %}
+
+{% block content %}
+    <div class="main-box">
+        <a class="anchor-button" href="/admin/nuke-table?table=users">Nuke User Table</a>
+        <a class="anchor-button" href="/admin/test-endpoint">Test Endpoint</a>
+
+        {% with msgs = get_flashed_messages() %}
+            {% if messages %}
+                <h3>Response:</h3>
+                <ul>
+                {% for message in message%}
+                    <li>{{ message }}</li>
+                {% endfor%}
+                </ul>
+            {% endif %}
+        {% endwith %}
+
+    </div>
+{% endblock content %}

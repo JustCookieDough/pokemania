@@ -1,9 +1,9 @@
 {% extends "base.jinja" %}
 
-{% set hasMiniNav, screenCentered, squid_bg, skipDataDisclosure = True, True, True, False %}
+{% set hasMiniNav, screen_centered, squid_bg, skipDataDisclosure = True, True, True, False %}
 
 {% block content %}
-<div class="main-box {{'small' if skipDataDisclosure}}">
+<div class="main-box">
     <h1>Sign In</h1>
     <div class="data-disclosure {{'hidden' if skipDataDisclosure}}">
     <h3>What Data Are We Using?</h3>
@@ -16,6 +16,6 @@
     to keep no important data, namely passwords, on our servers.</p>
     </div>
     <div class="divider {{'hidden' if not skipDataDisclosure}}"></div>
-    <a class="discord-button"><i class="fa-brands fa-discord"></i><p>Sign In with Discord</p></a>
+    <a class="funky-button" href="{{ url_for('authorize') }}"><i class="fa-brands fa-discord"></i><p>Sign In with Discord</p></a>
 </div>
 {% endblock content %}

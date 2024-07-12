@@ -126,10 +126,6 @@ body {
     color: var(--accent);
 }
 
-/* .nav-link.login {
-    font-weight: 500;
-} */
-
 .navbar.mini-nav {
     height: 2.5rem;
 }
@@ -213,18 +209,42 @@ body {
     justify-content: space-between;
 }
 
-.main-box {
+.main-box h1 {
     margin-top: 0;
 }
 
-.discord-button {
+.anchor-button {
+    margin: 1rem;
+    height: 2rem;
+    width: 12.5rem;
+    padding: .5rem 1.25rem .5rem;
+    border-radius: .5rem;
+
+    font-weight: bold;
+
+    background-color: var(--accent);
+    color: var(--background);
+
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+
+    transition: background-color .1s ease-in;
+}
+
+.anchor-button:hover {
+    background-color: var(--text);
+}
+
+.funky-button {
     margin-top: 2rem;
+    margin-bottom: 1rem;
     z-index: 7;
     height: 2.5rem;
     padding: .75rem 1.5rem .75rem;
     border-radius: .75rem;
     width: 17.5rem;
-    margin-bottom: 1rem;
 
     background-color: var(--accent);
     color: var(--background);
@@ -236,17 +256,25 @@ body {
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
+    transition: margin-top .1s ease-in, margin-bottom .1s ease-in, box-shadow .1s ease-in, background-color .1s ease-in;
 }
 
-.discord-button i {
+.funky-button i {
     height: 2.5rem;
     width: 2.5rem;
     font-size: 2.5rem;
 }
 
-.discord-button p {
+.funky-button p {
     font-size: 1.2rem;
     font-weight: bold;
+}
+
+.funky-button:hover {
+    margin-top: 2.25rem;
+    margin-bottom: .75rem;
+    box-shadow: 0 .75rem var(--background);
+    background-color: var(--text);
 }
 
 .data-disclosure {
@@ -273,4 +301,128 @@ body {
     width: 20rem;
     border-top: dotted;
     border-color: var(--midtone);
+}
+
+.profile-container {
+
+}
+
+.profile-top-row {
+    height: 10rem;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    padding: .2rem 0 .7rem;
+}
+
+.profile-top-right {
+    margin-left: 2rem;
+    width: 31rem;
+    height: 10rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+}
+
+.big-username {
+    width: 100%;
+    display: flex;
+    align-items: flex-end;
+    height: 5rem;
+    border-bottom: dotted;
+    border-color: var(--midtone);
+}
+
+.big-username h1 {
+    margin: 0 0 .25rem;
+    font-size: 2.5rem;
+}
+
+.id {
+    margin: .25rem 0 .125rem ;
+    font-size: .75rem;
+    opacity: 75%;
+}
+
+.profile-money {
+    display: block;
+    display: flex;
+    flex-direction: row;
+    justify-content: start;
+    align-items: center;
+    margin-top: 1rem;
+}
+
+.profile-money i {
+    font-size: 2rem;
+    color: var(--accent);
+}
+
+.profile-money p {
+    margin: 0 .5rem 0;
+    font-size: 1.5rem
+}
+
+.big-avatar {
+    width: 10rem;
+    height: 10rem;
+    border-radius: 50%;
+    border: solid;
+    border-color: var(--accent);
+    border-width: .2rem;
+}
+
+.profile-input-row {
+    height: 3rem;
+    margin: .75rem 0 .75rem;
+    color: var(--text);
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.profile-input-row h3 {
+    display: block;
+    font-size: 1.25rem;
+    min-width: 6.5rem;
+    text-align: right;
+    padding-right: 1rem;
+}
+
+input[type="text"] {
+    border: none;
+    border-bottom: .2rem dotted var(--midtone);
+    height: 3rem;
+    background-color: transparent;
+    font-size: 1.25rem;
+    font-family: inherit;
+    color: var(--text);
+}
+
+::placeholder {
+    color: var(--midtone);
+    opacity: 1; /* Firefox */
+}
+  
+::-ms-input-placeholder { /* Edge 12 -18 */
+    color: var(--midtone);
+}
+
+.profile-input-row input[type="text"] {
+    width: 35.5rem;
+}
+
+.profile-button-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-end;
+    height: 5.5rem;
+    margin-top: 2rem;
+}
+
+.profile-button-row .funky-button {
+    margin-top: 0;
 }
