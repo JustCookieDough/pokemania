@@ -38,9 +38,9 @@
         </div>
     </div>
     {% endblock nav %}
-    <div class="content {{'screen-centered' if screen_centered}}">
+    <div class="content {{'screen-centered' if not screen_centered}}">
     {% block content %}{% endblock content%}
     </div>
-    {% if squid_bg %}<div class="squid-bg"></div><div class="squid-bg-grad"></div>{% endif %}
+    {% if not no_squid_bg %}<div class="squid-bg"></div><div class="squid-bg-grad"></div>{% endif %}
     </body>
 </html>

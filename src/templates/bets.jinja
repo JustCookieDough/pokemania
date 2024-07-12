@@ -1,5 +1,7 @@
 {% extends "base.jinja" %}
 
+{% set hasMiniNav, not_screen_centered, not_squid_bg = False, False, False %} {# technically optional, just to demonstate what state variables can be changed #}
+
 {% block content %}
 bets
 {% endblock content %}
