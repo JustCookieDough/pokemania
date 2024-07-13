@@ -33,6 +33,14 @@ a {
     display: none;
 }
 
+.bold {
+    font-weight: bold;
+}
+
+.text-align-center {
+    text-align: center;
+}
+
 body {
     padding: 0;
     margin: 0;
@@ -114,10 +122,10 @@ body {
 }
 
 .nav-link {
-    margin: 0 .75rem 0;
+    margin: 0 1rem 0;
     padding: .15rem 0 .15rem;
     font-size: 1rem;
-    font-weight: 300;
+    /* font-weight: 300; */
 
     transition: color .15s ease-in;
 }
@@ -213,7 +221,7 @@ body {
     margin-top: 0;
 }
 
-.anchor-button {
+.anchor-button-wide {
     margin: 1rem;
     height: 2rem;
     width: 12.5rem;
@@ -233,7 +241,30 @@ body {
     transition: background-color .1s ease-in;
 }
 
-.anchor-button:hover {
+.anchor-button-wide:hover {
+    background-color: var(--text);
+}
+
+.anchor-button-icon {
+    margin: 1rem;
+    height: 2rem;
+    width: 2rem;
+    padding: .5rem;
+    border-radius: .5rem;
+
+    background-color: var(--accent);
+    color: var(--background);
+
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.25rem;
+
+    transition: background-color .1s ease-in;
+}
+
+.anchor-button-icon:hover {
     background-color: var(--text);
 }
 
@@ -298,13 +329,12 @@ body {
 }
 
 .divider {
-    width: 20rem;
     border-top: dotted;
     border-color: var(--midtone);
 }
 
-.profile-container {
-
+.data-disclosure .divider {
+    width: 20rem;
 }
 
 .profile-top-row {
@@ -365,7 +395,7 @@ body {
     font-size: 1.5rem
 }
 
-.big-avatar {
+.avatar-big {
     width: 10rem;
     height: 10rem;
     border-radius: 50%;
@@ -392,6 +422,8 @@ body {
 }
 
 input[type="text"] {
+    padding: 0;
+    margin: 0;
     border: none;
     border-bottom: .2rem dotted var(--midtone);
     height: 3rem;
@@ -425,4 +457,138 @@ input[type="text"] {
 
 .profile-button-row .funky-button {
     margin-top: 0;
+}
+
+.user-panel-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.user-panel-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.user-panel-row * {
+    margin: .75rem .5rem .75rem;
+}
+
+.panel-col-wide {
+    width: 12rem;
+}
+
+.panel-col-medium {
+    width: 8rem;
+}
+
+.panel-col-skinny {
+    width: 4rem;
+}
+
+.panel-col-wide input[type="text"], .panel-col-medium input[type="text"], .panel-col-skinny input[type="text"] {
+    width: 100%;
+}
+
+input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    border-radius: 0.5rem;
+    background-color: var(--accent);
+    width: 3rem;
+    height: 3rem;
+
+    transition: background-color .1s ease-in;
+}
+
+input[type="checkbox"]::before {
+    content: "";
+    width: 1.4rem;
+    height: 1.4rem;
+    clip-path: polygon(77% 0, 100% 11%, 54% 100%, 0 71%, 14% 48%, 43% 65%);
+    transform: scale(0);
+    background-color: var(--background);
+}
+  
+input[type="checkbox"]:checked::before {
+    transform: scale(1);
+}
+
+input[type="checkbox"]:hover {
+    background-color: var(--text);
+}
+
+.leaderboard-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+
+    font-size: 1.5rem;
+}
+
+.leaderboard-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 1rem 1rem 1rem;
+}
+
+.leaderboard-rank {
+    width: 4rem;
+    display: flex;
+    justify-content: center;
+}
+
+.leaderboard-rank i {
+    color: var(--accent);
+}
+
+.leaderboard-name {
+    display: flex;
+    align-items: center;
+    margin: 0 1rem 0;
+    width: 40rem;
+}
+
+.leaderboard-name t {
+    margin-left: 1rem;
+}
+
+.leaderboard-money {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-self: flex-end;
+    align-items: center;
+    width: 6rem;
+    text-align: right;
+    margin-right: 1rem;
+}
+
+.leaderboard-money i {
+    color: var(--accent);
+    margin-left: .5rem;
+    margin-top: .1rem;
+}
+
+.lr-dark {
+    background-color: var(--bg-accent-dark);
+    border-radius: 1rem;
+}
+
+.avatar-medium {
+    width: 3.5rem;
+    height: 3.5rem;
+    border-radius: 50%;
+    border: solid;
+    border-color: var(--accent);
+    border-width: .1rem;
 }

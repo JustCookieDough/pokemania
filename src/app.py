@@ -3,7 +3,7 @@ from flask_login import LoginManager, UserMixin, login_user, logout_user, curren
 from flask_sqlalchemy import SQLAlchemy
 from settings import DISCORD_OAUTH2_PROVIDER_INFO, FLASK_SECRET, ADMIN_IDS
 from werkzeug.exceptions import HTTPException
-from urllib.parse import urlencode
+from urllib.parse import urlencode, unquote
 from pprint import pprint
 import requests, secrets
 
@@ -40,6 +40,20 @@ def load_user(id):
 def index():
     return render_template('index.jinja')
 
+@app.route("/bets")
+@login_required
+def bets():
+    return render_template('bets.jinja')
+
+@app.route("/leaderboard")
+def leaderboard():
+    users = db.session.execute(db.select(User).order_by(User.money)).all()
+    return render_template('leaderboard.jinja', users=[user[0] for user in users[::-1]])
+
+
+########################################################################################################################
+# Login + User
+########################################################################################################################
 
 @app.route("/login")
 def login():
@@ -47,6 +61,7 @@ def login():
         return redirect(url_for('profile'))
     
     return render_template('login.jinja')
+
 
 @app.route("/logout")
 def logout():
@@ -72,6 +87,7 @@ def authorize():
     })
 
     return redirect(provider_data['authorize_url'] + '?' + query_string)
+
 
 @app.route("/callback")
 def callback():
@@ -136,36 +152,62 @@ def callback():
     login_user(user)
     return redirect(url_for('profile'))
 
+
 @app.route("/profile")
 @login_required
 def profile():
     return render_template('profile.jinja')
 
 
-@app.route("/bets")
+@app.route("/profile/update")
 @login_required
-def bets():
-    return render_template('bets.jinja')
+def update_user():
+    try:
+        current_user.avatar = unquote(request.args['avatar'])
+        current_user.email = request.args['email']
+    except:
+        flash('error: malformed query string')
+        return redirect(url_for('profile'))
+    
+    try:
+        db.session.commit()
+    except:
+        flash('error: failed to commit to db')
+        return redirect(url_for('profile'))
+
+    return redirect(url_for('profile'))
 
 
-@app.route("/leaderboard")
-def leaderboard():
-    return render_template('leaderboard.jinja')
+########################################################################################################################
+# Bracketmaster
+########################################################################################################################
 
+@app.route("/bracketmaster")
+@login_required
+def bracketmaster():
+    if not current_user.is_bracketmaster:
+        return redirect(url_for('index'))
+    return render_template('bracketmaster.jinja')
+
+
+
+########################################################################################################################
+# Admin
+########################################################################################################################
 
 @app.route("/admin")
 @login_required
 def admin():
     if not current_user.is_admin:
-        return redirect(url_for('index'))
-    return render_template('admin.jinja')
+        return abort(403)
+    return render_template('admin/admin.jinja')
 
 
 @app.route("/admin/nuke-table")
 @login_required
-def nuke_table():
+def admin_nuke_table():
     if not current_user.is_admin:
-        return redirect(url_for('index'))
+        return abort(403)
     
     table = request.args.get('table')
     if table not in db.metadata.tables:
@@ -185,17 +227,86 @@ def nuke_table():
 
 @app.route("/admin/test-endpoint")
 @login_required
-def test():
+def admin_test():
     # thing ur testing goes here
+    if not current_user.is_admin:
+        return abort(403)
     return redirect(url_for("admin"))
 
 
-@app.route("/bracketmaster")
+@app.route("/admin/manage-users")
 @login_required
-def bracketmaster():
-    if not current_user.is_bracketmaster:
+def admin_manage_users():
+    if not current_user.is_admin:
         return redirect(url_for('index'))
-    return render_template('bracketmaster.jinja')
+    users = db.session.execute(db.select(User).order_by(User.username)).all()
+    return render_template("admin/manage-users.jinja", users=users)
+
+
+@app.route("/admin/manage-users/update/")
+@login_required
+def admin_update_user():
+    if not current_user.is_admin:
+        return redirect(url_for('index'))
+
+    id = int(request.args['id'])
+    user = db.get_or_404(User, id)
+    
+    try:
+        user.money = int(request.args['money'])
+        user.is_admin = 'is_admin' in request.args
+        user.is_bracketmaster = 'is_bracketmaster' in request.args
+        user.avatar = unquote(request.args['avatar'])
+        user.email = request.args['email']
+    except:
+        flash('error: malformed query string')
+        return redirect(url_for('admin_manage_users'))
+    
+    try:
+        db.session.commit()
+    except:
+        flash('error: failed to commit to db')
+        return redirect(url_for('admin_manage_users'))
+
+    return redirect(url_for('admin_manage_users'))
+
+
+@app.route("/admin/manage-users/delete/")
+@login_required
+def admin_delete_user():
+    if not current_user.is_admin:
+        return redirect(url_for('index'))
+
+    id = int(request.args['id'])
+    user = db.get_or_404(User, id)
+    
+    try:
+        db.session.delete(user)
+        db.session.commit()
+    except Exception as e:
+        flash('error: could not delete user')
+        flash(str(e))
+        return redirect(url_for('admin_manage_users'))
+    
+    return redirect(url_for('admin_manage_users'))
+
+
+@app.route("/admin/test-user-panel-flash")
+@login_required
+def admin_test_user_panel_flash():
+    if not current_user.is_admin:
+        return redirect(url_for('index'))
+    flash('testing flash')
+    return redirect(url_for('admin_manage_users'))
+
+
+@app.route("/admin/test-admin-landing-flash")
+@login_required
+def admin_test_landing_flash():
+    if not current_user.is_admin:
+        return redirect(url_for('index'))
+    flash('testing flash')
+    return redirect(url_for('admin'))
 
 
 # error handler. tosses you to 404 page for pnf errors, a different page for everything else
@@ -220,7 +331,7 @@ def give_admin():
             user.is_bracketmaster = True
             db.session.commit()
 
-    return redirect(url_for("profile"))
+    return redirect(url_for("admin"))
 
 
 with app.app_context():

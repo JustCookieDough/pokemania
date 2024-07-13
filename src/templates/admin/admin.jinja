@@ -1,0 +1,25 @@
+{% extends "base.jinja" %}
+
+{% set hasMiniNav, screen_centered, squid_bg = False, False, False %}  
+
+{% block content %}
+    <div class="main-box">
+        <a class="anchor-button-wide" href=" {{ url_for('admin_manage_users') }} ">Manage Users</a>
+        <a class="anchor-button-wide" href=" {{ url_for('admin_nuke_table', table='users') }} ">Nuke User Table</a>
+        <a class="anchor-button-wide" href=" {{ url_for('admin_test') }} ">Test Endpoint</a>
+        <a class="anchor-button-wide" href=" {{ url_for('admin_test_user_panel_flash') }} ">Test User Panel Flash</a>
+        <a class="anchor-button-wide" href=" {{ url_for('admin_test_landing_flash') }} ">Test Admin Panel Flash</a>
+
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <h3>Response:</h3>
+                <ul>
+                {% for message in messages%}
+                    <li>{{ message }}</li>
+                {% endfor%}
+                </ul>
+            {% endif %}
+        {% endwith %}
+
+    </div>
+{% endblock content %}

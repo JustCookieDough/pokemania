@@ -1,13 +1,16 @@
 # Pokemania
-howdy ho gang. building this in (mostly) pure html/css/js w/ a flask cause frameworks are for nerdssssss.
+howdy ho gang. building this in (mostly) pure html/css/js w/ flask cause frameworks are for nerdssssss.
 also because im bad at svelte and vue and dont know react or angular lol.
 
 ### Todo
-- Logins via OAuth2 through discord (gonna be fucking annoying)
-- Profile Setup
+- ~~Logins via OAuth2 through discord (gonna be fucking annoying)~~
+- ~~Profile Setup~~
+- Bracket Data Structure
 - Bracket Display
-- Leaderboards (see ideas for what they'll look like)
+- ~~Leaderboards (see ideas for what they'll look like)~~
 - Betting Baybeeee (lets go gambling!)
+- ~~Admin Panel~~
+- Bracketmaster Panel
 
 ### Ideas/Future Features
 - Leaderboards: Total Coins, Total Progression, March Madness Style scores 

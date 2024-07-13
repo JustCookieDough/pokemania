@@ -3,10 +3,12 @@
 {% set hasMiniNav, not_screen_centered, not_squid_bg = False, False, False %} {# technically optional, just to demonstate what state variables can be changed #}
 
 {% block content %}
+<div class="main-box">
 <p>index</p>
 {% if not current_user.is_anonymous %}
 <p>howdy, {{current_user.username}}!</p>
 <p>your id is {{current_user.id}}</p>
-<a class="anchor-button" href="/give_admin">Give Scott/Will Admin</a>
+<a class="anchor-button-wide" href="{{ url_for('give_admin') }}">Give Scott/Will Admin</a>
 {% endif %}
+</div>
 {% endblock content %}

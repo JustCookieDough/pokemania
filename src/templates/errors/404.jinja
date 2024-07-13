@@ -3,9 +3,9 @@
 {% set hasMiniNav, not_screen_centered, not_squid_bg = False, False, False %} {# technically optional, just to demonstate what state variables can be changed #}
 
 {% block content %}
-<div style="main-box">
+<div class="main-box">
     <t>here there be dragons!</t>
     <t>404 baybee, this page doesnt exist</t>
-    <a href="/" class="funky-button">go home</a>
+    <a href="{{ url_for('index') }}" class="funky-button">go home</a>
 </div>
 {% endblock content %}

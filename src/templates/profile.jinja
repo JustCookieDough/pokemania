@@ -7,24 +7,30 @@
 
     <div class="profile-container">
         <div class="profile-top-row">
-            <img class="big-avatar" src="{{ current_user.avatar }}">
+            <img class="avatar-big" src="{{ current_user.avatar }}">
             <div class="profile-top-right">
                 <div class="big-username"><h1>{{ current_user.username }}</h1></div>
                 <p class="id"><i>(ID: {{ current_user.id }})</i></p>
                 <span class="profile-money"><i class="fa-solid fa-coin-vertical"></i><p>{{ current_user.money}}</p></span>
             </div>
         </div>
-        <div class="profile-input-row"><h3>Email</h3><input type="text" value="{{ '' if current_user.email == None else current_user.email }}" placeholder="ash.ketchum@oaklabs.org"></div>
-        <div class="profile-input-row"><h3>Avatar URI</h3><input type="text" value="{{ current_user.avatar }}"></div>
-        <div class="profile-button-row">
-            <a class="funky-button" href="/logout"><i class="fa-solid fa-right-from-bracket"></i>Log Out</a>
-            <a class="funky-button" href=""><i class="fa-solid fa-sliders"></i>Update Settings</a>
+        <form action="{{ url_for('update_user') }}">
+            <div class="profile-input-row"><h3>Email</h3><input type="text" name="email" value="{{ '' if current_user.email == None else current_user.email }}" placeholder="ash.ketchum@oaklabs.org"></div>
+            <div class="profile-input-row"><h3>Avatar URI</h3><input type="text" name="avatar" value="{{ current_user.avatar }}"></div>
+            <div class="profile-button-row">
+            <a class="funky-button" href="{{ url_for('logout') }}"><i class="fa-solid fa-right-from-bracket"></i>Log Out</a>
+            <a class="funky-button" id="update-settings-anchor"><i class="fa-solid fa-sliders"></i>Update Settings</a>
+            <input class="hidden" type="submit" id="update-form-submit">
         </div>
-        {# <ul>
-            <li>avatar: <img src="{{ current_user.avatar }}"></li>
-            <li>email: {{ current_user.email }}</li>
-            <li>permissions: {{ "admin" if current_user.is_admin }}  {{ "bracketmaster" if current_user.is_bracketmaster }}</li>
-        </ul> #}
+        </form>
     </div>
 </div>
 {% endblock content %}
+
+{% block scripts %}
+<script>
+anchor = document.getElementById('update-settings-anchor')
+submit = document.getElementById('update-form-submit')
+anchor.addEventListener('click', () => submit.click())
+</script>
+{% endblock%}
