@@ -1,6 +1,6 @@
 {% extends "base.jinja" %}
 
-{% set hasMiniNav, not_screen_centered, not_squid_bg = False, True, False %} {# technically optional, just to demonstate what state variables can be changed #}
+{% set hasMiniNav, not_screen_centered, not_squid_bg = False, True, False %}
 
 {% block content %}
 <div class="main-box">
@@ -18,31 +18,31 @@
         {% endif %}
     {% endwith %}
 
-    <div class="user-panel-container">
-    <div class="user-panel-row bold">
-        <span class="panel-col-wide">Username </span>
-        <span class="panel-col-wide">User ID</span>
-        <span class="panel-col-medium">Money</span>
-        <span class="panel-col-skinny text-align-center">Admin?</span>
-        <span class="panel-col-skinny text-align-center">BM?</span>
-        <span class="panel-col-wide">Avatar URL</span>
-        <span class="panel-col-wide">Email</span>
-        <span class="panel-col-skinny text-align-center">Update</span>
-        <span class="panel-col-skinny text-align-center">Delete</span>
+    <div class="dev-panel-container">
+    <div class="dev-panel-row bold">
+        <span class="dev-panel-col-wide">Username </span>
+        <span class="dev-panel-col-wide">User ID</span>
+        <span class="dev-panel-col-medium">Money</span>
+        <span class="dev-panel-col-skinny text-align-center">Admin?</span>
+        <span class="dev-panel-col-skinny text-align-center">BM?</span>
+        <span class="dev-panel-col-wide">Avatar URL</span>
+        <span class="dev-panel-col-wide">Email</span>
+        <span class="dev-panel-col-skinny text-align-center">Update</span>
+        <span class="dev-panel-col-skinny text-align-center">Delete</span>
     </div>
     {% for user in users %}
     <div class="divider" style="width:100%;"></div>
-    <form action="{{ url_for('admin_update_user') }}" method="get"><div class="user-panel-row">
+    <form action="{{ url_for('admin_update_user') }}" method="get"><div class="dev-panel-row">
         <input name="id" type="hidden" value="{{ user[0].id }}">
-        <span class="panel-col-wide">{{ user[0].username }}</span>
-        <span class="panel-col-wide">{{ user[0].id }}</span>
-        <span class="panel-col-medium"><input type="text" name="money" value={{ user[0].money }}></span>
-        <span class="panel-col-skinny"><input type="checkbox" name="is_admin" {{ "checked" if user[0].is_admin }}></span>
-        <span class="panel-col-skinny"><input type="checkbox" name="is_bracketmaster" {{ "checked" if user[0].is_bracketmaster }}></span>
-        <span class="panel-col-wide"><input type="text" name="avatar" value={{ user[0].avatar }}></span>
-        <span class="panel-col-wide"><input type="text" name="email" value={{ user[0].email if user[0].email }}></span>
-        <span class="panel-col-skinny"><a class="anchor-button-icon" onclick="document.getElementById('update-submit-{{user[0].id}}').click()"><i class="fa-solid fa-pen-to-square" style="margin-right:.3rem;"></i></i></a><input type="submit" class="hidden" id="update-submit-{{user[0].id}}"></span>
-        <span class="panel-col-skinny"><a class="anchor-button-icon" href="{{ url_for('admin_delete_user', id=user[0].id) }}"><i class="fa-solid fa-trash"></i></a></span>
+        <span class="dev-panel-col-wide">{{ user[0].username }}</span>
+        <span class="dev-panel-col-wide">{{ user[0].id }}</span>
+        <span class="dev-panel-col-medium"><input type="text" name="money" value={{ user[0].money }}></span>
+        <span class="dev-panel-col-skinny"><input type="checkbox" name="is_admin" {{ "checked" if user[0].is_admin }}></span>
+        <span class="dev-panel-col-skinny"><input type="checkbox" name="is_bracketmaster" {{ "checked" if user[0].is_bracketmaster }}></span>
+        <span class="dev-panel-col-wide"><input type="text" name="avatar" value={{ user[0].avatar }}></span>
+        <span class="dev-panel-col-wide"><input type="text" name="email" value={{ user[0].email if user[0].email }}></span>
+        <span class="dev-panel-col-skinny"><a class="anchor-button-icon" onclick="document.getElementById('update-submit-{{user[0].id}}').click()"><i class="fa-solid fa-pen-to-square" style="margin-right:.3rem;"></i></i></a><input type="submit" class="hidden" id="update-submit-{{user[0].id}}"></span>
+        <span class="dev-panel-col-skinny"><a class="anchor-button-icon" href="{{ url_for('admin_delete_user', id=user[0].id) }}"><i class="fa-solid fa-trash"></i></a></span>
     </div></form>
     {% endfor %}
     </div>    

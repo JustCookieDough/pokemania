@@ -2,5 +2,6 @@
 .DS_Store
 **/.env
 **/*.pyc
-src/instance/
+**/instance/
+src/migrations/
 **/__pycache__/

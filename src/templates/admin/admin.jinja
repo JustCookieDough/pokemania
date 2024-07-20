@@ -1,9 +1,10 @@
 {% extends "base.jinja" %}
 
-{% set hasMiniNav, screen_centered, squid_bg = False, False, False %}  
+{% set hasMiniNav, not_screen_centered, squid_bg = False, False, False %}  
 
 {% block content %}
     <div class="main-box">
+        <h1>Admin</h1>
         <a class="anchor-button-wide" href=" {{ url_for('admin_manage_users') }} ">Manage Users</a>
         <a class="anchor-button-wide" href=" {{ url_for('admin_nuke_table', table='users') }} ">Nuke User Table</a>
         <a class="anchor-button-wide" href=" {{ url_for('admin_test') }} ">Test Endpoint</a>

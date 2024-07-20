@@ -1,11 +1,16 @@
 from flask import Flask, url_for, render_template, redirect, session, abort, request, flash
 from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user, login_required
 from flask_sqlalchemy import SQLAlchemy
-from settings import DISCORD_OAUTH2_PROVIDER_INFO, FLASK_SECRET, ADMIN_IDS
+from flask_migrate import Migrate
+from sqlalchemy.orm import Mapped, mapped_column
 from werkzeug.exceptions import HTTPException
 from urllib.parse import urlencode, unquote
 from pprint import pprint
-import requests, secrets
+from typing import Optional
+import requests, secrets, random, base64
+
+from settings import DISCORD_OAUTH2_PROVIDER_INFO, FLASK_SECRET, ADMIN_IDS
+from bracket import Bracket
 
 app = Flask("__name__")
 
@@ -14,27 +19,46 @@ app.config["SECRET_KEY"] = FLASK_SECRET
 app.config['OAUTH2_PROVIDER'] = DISCORD_OAUTH2_PROVIDER_INFO
 
 db = SQLAlchemy(app)
+migrate = Migrate(app, db)
+
 login = LoginManager(app)
 login.login_view = 'login'
 
 
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(64), nullable=False)
-    money = db.Column(db.Integer, nullable=False)
-    is_admin = db.Column(db.Boolean, default=False)
-    is_bracketmaster = db.Column(db.Boolean, default=False)
 
+    id: Mapped[int] = mapped_column(primary_key=True)
+    username: Mapped[str] = mapped_column(unique=True)
+    money: Mapped[int]
+    avatar: Mapped[str]
+
+    is_admin: Mapped[bool] = mapped_column(default=True)
+    is_bracketmaster: Mapped[bool] = mapped_column(default=True)
+    
     # email is optional, just for updates
-    avatar = db.Column(db.String(128), nullable=True)
-    email = db.Column(db.String(64), nullable=True)
+    email: Mapped[Optional[str]]
+
+
+class Deck(db.Model):
+    __tablename__ = 'decks'
+    id: Mapped[int] = mapped_column(primary_key=True)
+    deck_name: Mapped[str]
+    matches: Mapped[int]
+    wins: Mapped[int]
+    image_uri: Mapped[Optional[str]]
+
+
+class BracketData(db.Model):
+    __tablename__ = 'bracket'
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str]
+    bracket_data: Mapped[str]
 
 
 @login.user_loader
 def load_user(id):
     return db.session.get(User, int(id))
-
 
 @app.route("/")
 def index():
@@ -187,7 +211,174 @@ def update_user():
 def bracketmaster():
     if not current_user.is_bracketmaster:
         return redirect(url_for('index'))
-    return render_template('bracketmaster.jinja')
+    return render_template('bracketmaster/bracketmaster.jinja')
+
+
+@app.route("/bracketmaster/manage-decks")
+@login_required
+def bracketmaster_manage_decks():
+    if not current_user.is_bracketmaster:
+        return redirect(url_for('index'))
+    decks = db.session.execute(db.select(Deck).order_by(Deck.deck_name)).all()
+    return render_template('bracketmaster/manage-decks.jinja', decks=decks)
+
+
+@app.route("/bracketmaster/manage-decks/update_deck")
+@login_required
+def bracketmaster_update_deck():
+    if not current_user.is_bracketmaster:
+        return redirect(url_for('index'))
+    
+    id = int(request.args['id'])
+    deck = db.get_or_404(Deck, id)
+
+    try:
+        deck.deck_name = unquote(request.args['deck_name'])
+        deck.matches = int(request.args['matches'])
+        deck.wins = int(request.args['wins'])
+        deck.image_uri = unquote(request.args['image_uri'])
+    except Exception as e:
+        flash('error: malformed query string')
+        flash(str(e))
+        return redirect(url_for('bracketmaster_manage_decks'))
+    
+    try:
+        db.session.commit()
+    except:
+        flash('error: failed to commit to db')
+        return redirect(url_for('bracketmaster_manage_decks'))
+
+    return redirect(url_for('bracketmaster_manage_decks'))
+
+
+@app.route("/bracketmaster/manage-decks/create_deck")
+@login_required
+def bracketmaster_create_deck():
+    if not current_user.is_bracketmaster:
+        return redirect(url_for('index'))
+    
+    found_valid_id = False
+    while not found_valid_id:
+        try:
+            id = random.randint(0, 4294967295)
+            db.get_or_404(Deck, id)
+            
+        except:
+            found_valid_id = True
+
+    deck = Deck(id=id, deck_name="", matches=0, wins=0, image_uri="")
+    db.session.add(deck)
+    db.session.commit()
+
+    return redirect(url_for('bracketmaster_manage_decks'))
+    
+
+@app.route("/bracketmaster/manage-decks/delete_deck")
+@login_required
+def bracketmaster_delete_deck():
+    if not current_user.is_bracketmaster:
+        return redirect(url_for('index'))
+    
+    id = int(request.args['id'])
+    deck = db.get_or_404(Deck, id)
+    
+    try:
+        db.session.delete(deck)
+        db.session.commit()
+    except Exception as e:
+        flash('error: could not delete deck')
+        flash(str(e))
+        return redirect(url_for('bracketmaster_manage_decks'))
+            
+    return redirect(url_for('bracketmaster_manage_decks'))   
+
+@app.route("/bracketmaster/manage-brackets")
+@login_required
+def bracketmaster_manage_brackets():
+    if not current_user.is_bracketmaster:
+        return redirect(url_for('index'))
+    brackets = db.session.execute(db.select(BracketData).order_by(BracketData.name)).all()
+    return render_template('bracketmaster/manage-brackets.jinja', brackets=brackets)
+
+
+@app.route("/bracketmaster/create-bracket")
+@login_required
+def bracketmaster_create_bracket():
+    if not current_user.is_bracketmaster:
+        return redirect(url_for('index'))
+    
+    found_valid_id = False
+    while not found_valid_id:
+        try:
+            id = random.randint(0, 4294967295)
+            db.get_or_404(BracketData, id)
+            
+        except:
+            found_valid_id = True
+
+    b = Bracket()
+    b_data = base64.b64encode(b.to_json().encode('utf-8')).decode('utf-8')
+
+    bracket = BracketData(id=id, name="", bracket_data=b_data)
+    db.session.add(bracket)
+    db.session.commit()
+
+    return redirect(url_for('bracketmaster_manage_brackets'))
+
+
+@app.route("/bracketmaster/delete-bracket")
+@login_required
+def bracketmaster_delete_bracket():
+    if not current_user.is_bracketmaster:
+        return redirect(url_for('index'))
+    
+    id = int(request.args['id'])
+    bracket = db.get_or_404(BracketData, id)
+    
+    try:
+        db.session.delete(bracket)
+        db.session.commit()
+    except Exception as e:
+        flash('error: could not delete bracket')
+        flash(str(e))
+        return redirect(url_for('bracketmaster_manage_brackets'))
+            
+    return redirect(url_for('bracketmaster_manage_brackets')) 
+
+
+@app.route("/bracketmaster/update-bracket")
+@login_required
+def bracketmaster_update_bracket():
+    if not current_user.is_bracketmaster:
+        return redirect(url_for('index'))
+    
+    flash("shit's busted.")
+    flash("it doesn't like names with spaces in them for whatever reason")
+    flash("couldn't tell you why lol")
+    flash("-scott")
+    return redirect(url_for('bracketmaster_manage_brackets'))
+
+    id = int(request.args['id'])
+    bracket = db.get_or_404(BracketData, id)
+
+    try:
+        print(request.args['name'], unquote(request.args['name']))
+        bracket.name = unquote(request.args['name'])
+        print(bracket.name)
+        db.session.commit()
+    except Exception as e:
+        flash('there was an error updating bracket name')
+        flash(str(e))
+        return redirect(url_for('bracketmaster_manage_brackets'))
+    
+    return redirect(url_for('bracketmaster_manage_brackets'))
+
+
+@app.route("/bracketmaster/manage-brackets/<int:id>")
+@login_required
+def bracketmaster_edit_bracket(id):
+    flash('not implemented yet, sorry')
+    return redirect(url_for('bracketmaster_manage_brackets'))
 
 
 

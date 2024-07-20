@@ -459,37 +459,37 @@ input[type="text"] {
     margin-top: 0;
 }
 
-.user-panel-container {
+.dev-panel-container {
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
     align-items: center;
 }
 
-.user-panel-row {
+.dev-panel-row {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
 }
 
-.user-panel-row * {
+.dev-panel-row * {
     margin: .75rem .5rem .75rem;
 }
 
-.panel-col-wide {
+.dev-panel-col-wide {
     width: 12rem;
 }
 
-.panel-col-medium {
+.dev-panel-col-medium {
     width: 8rem;
 }
 
-.panel-col-skinny {
+.dev-panel-col-skinny {
     width: 4rem;
 }
 
-.panel-col-wide input[type="text"], .panel-col-medium input[type="text"], .panel-col-skinny input[type="text"] {
+.dev-panel-col-wide input[type="text"], .dev-panel-col-medium input[type="text"], .dev-panel-col-skinny input[type="text"] {
     width: 100%;
 }
 
