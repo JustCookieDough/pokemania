@@ -56,9 +56,24 @@ class BracketData(db.Model):
     bracket_data: Mapped[str]
 
 
-@login.user_loader
-def load_user(id):
-    return db.session.get(User, int(id))
+########################################################################################################################
+# Helpers
+########################################################################################################################
+
+def moveEmptyBracketsToEnd(bracket_list: list[tuple[BracketData]]) -> None:
+    i = 0
+    end = len(bracket_list)
+    while i < end:
+        if bracket_list[i][0].name == "":
+            bracket_list.append(bracket_list.pop(i))
+            end -= 1
+        else:
+            i += 1
+
+
+########################################################################################################################
+# Major Pages
+########################################################################################################################
 
 @app.route("/")
 def index():
@@ -78,6 +93,11 @@ def leaderboard():
 ########################################################################################################################
 # Login + User
 ########################################################################################################################
+
+@login.user_loader
+def load_user(id):
+    return db.session.get(User, int(id))
+
 
 @app.route("/login")
 def login():
@@ -171,10 +191,12 @@ def callback():
         user = User(id=id, username=username, money=0, avatar=avatar_uri)
         db.session.add(user)
         db.session.commit()
+        login_user(user)
+        return redirect(url_for('profile'))
 
     # # log the user in
     login_user(user)
-    return redirect(url_for('profile'))
+    return redirect(url_for('index'))
 
 
 @app.route("/profile")
@@ -292,12 +314,14 @@ def bracketmaster_delete_deck():
             
     return redirect(url_for('bracketmaster_manage_decks'))   
 
+
 @app.route("/bracketmaster/manage-brackets")
 @login_required
 def bracketmaster_manage_brackets():
     if not current_user.is_bracketmaster:
         return redirect(url_for('index'))
     brackets = db.session.execute(db.select(BracketData).order_by(BracketData.name)).all()
+    moveEmptyBracketsToEnd(brackets)
     return render_template('bracketmaster/manage-brackets.jinja', brackets=brackets)
 
 
@@ -351,20 +375,12 @@ def bracketmaster_delete_bracket():
 def bracketmaster_update_bracket():
     if not current_user.is_bracketmaster:
         return redirect(url_for('index'))
-    
-    flash("shit's busted.")
-    flash("it doesn't like names with spaces in them for whatever reason")
-    flash("couldn't tell you why lol")
-    flash("-scott")
-    return redirect(url_for('bracketmaster_manage_brackets'))
 
     id = int(request.args['id'])
     bracket = db.get_or_404(BracketData, id)
 
     try:
-        print(request.args['name'], unquote(request.args['name']))
         bracket.name = unquote(request.args['name'])
-        print(bracket.name)
         db.session.commit()
     except Exception as e:
         flash('there was an error updating bracket name')
@@ -379,7 +395,6 @@ def bracketmaster_update_bracket():
 def bracketmaster_edit_bracket(id):
     flash('not implemented yet, sorry')
     return redirect(url_for('bracketmaster_manage_brackets'))
-
 
 
 ########################################################################################################################
@@ -527,6 +542,7 @@ def give_admin():
 
 with app.app_context():
     db.create_all()
+
 
 if __name__ == "__main__":
     app.run(debug=True, port=5678)

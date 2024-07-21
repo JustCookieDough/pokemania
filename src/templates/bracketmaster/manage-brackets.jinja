@@ -31,7 +31,7 @@
     <div class="divider" style="width:100%;"></div>
     <form action="{{ url_for('bracketmaster_update_bracket') }}" method="get"><div class="dev-panel-row">
         <span class="dev-panel-col-medium">{{ bracket[0].id }}</span><input name="id" type="hidden" value="{{ bracket[0].id }}">
-        <span class="dev-panel-col-wide"><input type="text" name="name" id="name-input-{{bracket[0].id}}" value={{ bracket[0].name }}></span>
+        <span class="dev-panel-col-wide"><input type="text" name="name" id="name-input-{{bracket[0].id}}" value="{{ bracket[0].name }}"></span>
         <span class="dev-panel-col-skinny"><a class="anchor-button-icon" href="{{ url_for('bracketmaster_edit_bracket', id=bracket[0].id)}}"><i class="fa-solid fa-pencil"></i></a></span>
         <span class="dev-panel-col-skinny"><a class="anchor-button-icon" onclick="document.getElementById('update-submit-{{bracket[0].id}}').click()"><i class="fa-solid fa-pen-to-square" style="margin-right:.3rem;"></i></i></a><input type="submit" class="hidden" id="update-submit-{{bracket[0].id}}"></span>
         <span class="dev-panel-col-skinny"><a class="anchor-button-icon" href="{{ url_for('bracketmaster_delete_bracket', id=bracket[0].id) }}"><i class="fa-solid fa-trash"></i></a></span>
