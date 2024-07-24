@@ -1,0 +1,44 @@
+{% extends "basics/base.jinja" %}
+
+
+{% block content %}
+<div class="dev-panel-container">
+<div class="dev-panel-row bold mid-large-text">
+    <span style="width:35rem;" class="text-align-center">Matches</span>
+    <div class="vertical-divider"></div>
+    <span class="dev-panel-col-skinny text-align-center">Bets</span>
+    {% if matches|length > 5 %}<div id="padding"></div>{% endif %}
+</div>
+<div class="divider" style="width:100%"></div>
+<div class="scrollable" style="max-height: 30rem;" id="scroll">
+{% for match in matches %}
+<div class="dev-panel-row">
+    <span class="dev-panel-col-skinny"><a class="anchor-button-icon"><i class="fa-solid fa-trophy"></i></a></span>
+    <span class="dev-panel-col-wide">{{ match.left.competitor.name }}</span>
+    <span class="dev-panel-col-wide text-align-right">{{ match.right.competitor.name }}</span>
+    <span class="dev-panel-col-skinny"><a class="anchor-button-icon"><i class="fa-solid fa-trophy"></i></a></span>
+    <div class="vertical-divider" style="margin: 0 .5rem 0; height:5.8rem"></div>
+    <span class="dev-panel-col-skinny"><a class="anchor-button-icon"><i class="fa-solid fa-coin-vertical"></i></a></span>
+</div>
+{% endfor %}
+{% if matches|length == 0 %}
+<div class="dev-panel-row">
+<t class="large-text bold">There are currently no active matches for this bracket.</t>
+</div>
+{% endif %}
+</div>
+<a class="anchor-button-wide" href="{{ url_for('bracketmaster_edit_bracket', id=id) }}">Back</a>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+{% if matches|length > 5 %}
+<script>
+const scroll = document.getElementById("scroll");
+const padding = document.getElementById("padding");
+var scrollbarWidth = scroll.offsetWidth - scroll.clientWidth;
+padding.style = `margin: 0; width: ${scrollbarWidth}px`;
+</script>
+{% endif %}
+{% endblock %}

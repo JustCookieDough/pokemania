@@ -1,0 +1,47 @@
+{% extends 'basics/base.jinja' %}
+
+{% block content %}
+<h1>Competitors</h1>
+<div class="dev-panel-container">
+<div class="dev-panel-row bold text-align-center mid-large-text">
+    <span class="dev-panel-col-wide">Name</span>
+    <span class="dev-panel-col-wide">Owner</span>
+    <span class="dev-panel-col-wide">Deck</span>
+    <div id="padding"></div>
+</div>
+<div class="divider" style="width: 100%;"></div>
+<form action="{{ url_for('bracketmaster_update_competitors', id=id) }}"><div class="scrollable" id="scroll" style="max-height: 23rem;">
+{% for competitor in competitors %}
+<div class="dev-panel-row">
+    <span class="dev-panel-col-wide"><input type="text" name="{{ loop.index0 }}-name" placeholder="Deck Name" value="{{ competitor.name }}"></span>
+    <span class="dev-panel-col-wide"><select name="{{ loop.index0 }}-owner">
+    {% for owner in owners %}
+        <option value="{{owner[0].id}}" {{'selected' if owner[0].id|string == competitor.owner_id else ''}}>{{owner[0].username}}</option>
+    {% endfor %}
+    </select></span>
+    <span class="dev-panel-col-wide"><select name="{{ loop.index0 }}-deck">
+    {% for deck in decks %}
+        <option value="{{deck[0].id}}" {{'selected' if deck[0].id|string == competitor.deck_id else ''}}>{{deck[0].name}}</option>
+    {% endfor %}
+    </select></span>
+</div>
+{% endfor %}
+<input type="submit" class="hidden" id="submit">
+</div></form>
+</div>
+<div class="dev-panel-row">
+    <span class="dev-panel-col-skinny"><a class="anchor-button-icon" href="{{ url_for('bracketmaster_edit_bracket', id=id) }}"><i class="fa-solid fa-arrow-left"></i></a></span>
+    <span class="dev-panel-col-skinny"><a class="anchor-button-icon" onclick="document.getElementById('submit').click()"><i class="fa-solid fa-pen-to-square"></i></a></span>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{# {% if matches|length > 5 %} #}
+<script>
+const scroll = document.getElementById("scroll");
+const padding = document.getElementById("padding");
+var scrollbarWidth = scroll.offsetWidth - scroll.clientWidth;
+padding.style = `margin: 0px; width: ${scrollbarWidth}px`;
+</script>
+{# {% endif %} #}
+{% endblock %}

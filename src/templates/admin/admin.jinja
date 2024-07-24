@@ -1,26 +1,21 @@
-{% extends "base.jinja" %}
+{% extends "basics/base.jinja" %}
 
-{% set hasMiniNav, not_screen_centered, squid_bg = False, False, False %}  
+{% set has_mini_nav, not_screen_centered, not_squid_bg, is_unboxed, has_flash = False, False, False, False, True %}
 
 {% block content %}
-    <div class="main-box">
-        <h1>Admin</h1>
-        <a class="anchor-button-wide" href=" {{ url_for('admin_manage_users') }} ">Manage Users</a>
-        <a class="anchor-button-wide" href=" {{ url_for('admin_nuke_table', table='users') }} ">Nuke User Table</a>
-        <a class="anchor-button-wide" href=" {{ url_for('admin_test') }} ">Test Endpoint</a>
-        <a class="anchor-button-wide" href=" {{ url_for('admin_test_user_panel_flash') }} ">Test User Panel Flash</a>
-        <a class="anchor-button-wide" href=" {{ url_for('admin_test_landing_flash') }} ">Test Admin Panel Flash</a>
+<h1>Admin</h1>
+<a class="anchor-button-wide" href=" {{ url_for('admin_manage_users') }} ">Manage Users</a>
 
-        {% with messages = get_flashed_messages() %}
-            {% if messages %}
-                <h3>Response:</h3>
-                <ul>
-                {% for message in messages%}
-                    <li>{{ message }}</li>
-                {% endfor%}
-                </ul>
-            {% endif %}
-        {% endwith %}
+{# why do we even have that lever??! #}
+{# <a class="anchor-button-wide" href=" {{ url_for('admin_nuke_table', table='users') }} ">Nuke User Table</a>
+<a class="anchor-button-wide" href=" {{ url_for('admin_nuke_all_tables') }} ">Nuke All Tables</a> #}
 
-    </div>
+<a class="anchor-button-wide" href=" {{ url_for('admin_build_test_db') }} ">Nuke and Build Test DB</a>
+<a class="anchor-button-wide" href=" {{ url_for('admin_test') }} ">Test Endpoint</a>
+
+{# <a class="anchor-button-wide" href=" {{ url_for('admin_test_user_panel_flash') }} ">Test User Panel Flash</a>
+<a class="anchor-button-wide" href=" {{ url_for('admin_test_landing_flash') }} ">Test Admin Panel Flash</a> #}
+
+<a class="anchor-button-icon" href="{{ url_for('index') }}"><i class="fa-solid fa-arrow-left"></i></a>
+
 {% endblock content %}

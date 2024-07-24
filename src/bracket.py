@@ -8,9 +8,12 @@ class Bracket:
     top: Match
 
 
-    def __init__(self) -> None:
-        self.name = ""
-        self.top = Match()
+    def __init__(self, json="") -> None:
+        if json == "":
+            self.name = ""
+            self.top = Match()
+        else:
+            self.from_json(json)
 
 
     def to_json(self) -> str:
@@ -69,6 +72,9 @@ class Match:
         self.right = None
 
     def is_ready(self) -> bool:
+        if (not self.left or not self.right):
+            return False
+        
         return self.left.competitor and self.right.competitor
     
     def declare_winner(self, leftIsWinner: bool) -> None:
@@ -79,6 +85,19 @@ class Match:
         return [self] + \
                 (self.left.generate_match_list() if self.left else []) + \
                 (self.right.generate_match_list() if self.right else [])
+    
+
+    def generate_competitor_list(self) -> list[Competitor]:
+        return [self.competitor] if self.competitor else [] + \
+                (self.left.generate_competitor_list() if self.left else []) + \
+                (self.right.generate_competitor_list() if self.right else [])
+    
+    def update_competitors(self, competitors: list[Competitor]) -> None:
+        if self.competitor:
+            self.competitor = competitors.pop(0)
+        else:
+            self.left.update_competitors(competitors)
+            self.right.update_competitors(competitors)
 
 
 class Competitor:
@@ -86,7 +105,8 @@ class Competitor:
     owner_id: int
     deck_id: int
 
-
+    def __str__(self):
+        return f'Competitor ~ name: "{self.name}", owner: {self.owner_id}, deck: {self.deck_id};'
 
 
 

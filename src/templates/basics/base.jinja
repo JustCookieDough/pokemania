@@ -12,6 +12,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
 <!-- end fonts + icons -->
 
 {% block styles %}
@@ -21,7 +22,7 @@
 </head>
 <body>
     {% block nav %}
-    <div class="navbar{{' mini-nav' if hasMiniNav}}">
+    <div class="navbar{{' mini-nav' if has_mini_nav}}">
         <div class="nav-left">
             <a class="nav-link nav-hoverable" href="{{ url_for('index') }}">Home</a>
             <a class="nav-link nav-hoverable" href="{{ url_for('bets') }}">Bets</a>
@@ -38,10 +39,28 @@
         </div>
     </div>
     {% endblock nav %}
+    
     <div class="content {{'screen-centered' if not not_screen_centered}}">
+    {% if not is_unboxed %}<div class="main-box">{% endif %}
+    
     {% block content %}{% endblock content%}
+    {% if has_flash %}
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <h3>Response:</h3>
+            <ul>
+            {% for message in messages%}
+                <li>{{ message }}</li>
+            {% endfor%}
+            </ul>
+        {% endif %}
+    {% endwith %}
+    {% endif%}
+    {% if not is_unboxed %}</div>{% endif %}
     </div>
-    {% if not no_squid_bg %}<div class="squid-bg"></div><div class="squid-bg-grad"></div>{% endif %}
+    
+    {% if not not_squid_bg %}<div class="squid-bg"></div><div class="squid-bg-grad"></div>{% endif %}
+    
     {% block scripts %}{% endblock %}
     </body>
 </html>

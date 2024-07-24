@@ -1,0 +1,10 @@
+{% extends "basics/base.jinja" %}
+
+{% set has_mini_nav, not_screen_centered, not_squid_bg, is_unboxed = True, False, False, False %} {# technically optional, just to demonstate what state variables can be changed #}
+
+{% block content %}
+<h1 style="margin-top: 0px">Log Out</h1>
+<div class="divider"></div>
+<p style="font-size:1.25rem;margin-bottom:0;">You have been logged out.</p>
+<a href="{{ url_for('index') }}" class="funky-button" style="width:10rem;justify-content:center;"><p>Home</p></a>
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends "basics/base.jinja" %}
+
+{% block content %}
+<h1>{{ name }} JSON Data</h1>
+<textarea class="scrollable" id="text" rows="24" cols="80">{{ json }}</textarea>
+<div class="dev-panel-row">
+    <span class="dev-panel-col-skinny"><a class="anchor-button-icon" href="{{ url_for('bracketmaster_edit_bracket', id=id) }}"><i class="fa-solid fa-arrow-left"></i></a></span>
+    <span class="dev-panel-col-skinny"><a class="anchor-button-icon" id="update"><i class="fa-solid fa-pen-to-square"></i></a></span>
+</div>
+<span class="dev-panel-row"><t class="dev-panel-col-medium bold">Response:</t><t class="dev-panel-col-wide" id="response"></t></span>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const update = document.getElementById("update");
+const text = document.getElementById("text");
+const responseOut = document.getElementById("response");
+
+update.addEventListener('click', async () => {
+    var response = await fetch("{{ url_for('bracketmaster_edit_json_data', id=id) }}", {
+    method: 'POST',
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({"base64": encodeURI(btoa(text.value))})
+    });
+    responseOut.innerText = await response.text()
+})
+</script>
+{% endblock %}

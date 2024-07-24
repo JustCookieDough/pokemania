@@ -1,24 +1,8 @@
-{% extends "base.jinja" %}
-
-{% set hasMiniNav, not_screen_centered, not_squid_bg = False, True, False %}
+{% extends "basics/base.jinja" %}
 
 {% block content %}
-<div class="main-box">
-    <h1>Users</h1>
-    <a class="anchor-button-wide" href="{{ url_for('admin') }}">Back</a>
-
-    {% with messages = get_flashed_messages() %}
-        {% if messages %}
-            <h3>Response:</h3>
-            <ul>
-            {% for message in messages %}
-                <li>{{ message }}</li>
-            {% endfor%}
-            </ul>
-        {% endif %}
-    {% endwith %}
-
-    <div class="dev-panel-container">
+<h1>Users</h1>
+<div class="dev-panel-container">
     <div class="dev-panel-row bold">
         <span class="dev-panel-col-wide">Username </span>
         <span class="dev-panel-col-wide">User ID</span>
@@ -30,6 +14,7 @@
         <span class="dev-panel-col-skinny text-align-center">Update</span>
         <span class="dev-panel-col-skinny text-align-center">Delete</span>
     </div>
+    <div class="scrollable" style="max-height:25rem">
     {% for user in users %}
     <div class="divider" style="width:100%;"></div>
     <form action="{{ url_for('admin_update_user') }}" method="get"><div class="dev-panel-row">
@@ -45,6 +30,8 @@
         <span class="dev-panel-col-skinny"><a class="anchor-button-icon" href="{{ url_for('admin_delete_user', id=user[0].id) }}"><i class="fa-solid fa-trash"></i></a></span>
     </div></form>
     {% endfor %}
-    </div>    
+    </div>
+<a class="anchor-button-icon" href="{{ url_for('admin') }}"><i class="fa-solid fa-arrow-left"></i></a>
 </div>
+
 {% endblock content %}

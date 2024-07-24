@@ -41,12 +41,24 @@ a {
     text-align: center;
 }
 
+.text-align-right {
+    text-align: right;
+}
+
+.large-text {
+    font-size: 1.5rem;
+}
+
+.mid-large-text {
+    font-size: 1.25rem;
+}
+
 body {
     padding: 0;
     margin: 0;
     background-color: var(--background);
     color: var(--text);
-    width: 100vw;
+    width: 100%;
 
     display: flex;
     flex-direction: column;
@@ -161,7 +173,7 @@ body {
 
 .content.screen-centered {
     position: absolute;
-    width: 100vw;
+    width: 100%;
     height: 100vh;
     margin: 0;
 
@@ -361,8 +373,6 @@ body {
     display: flex;
     align-items: flex-end;
     height: 5rem;
-    border-bottom: dotted;
-    border-color: var(--midtone);
 }
 
 .big-username h1 {
@@ -532,6 +542,7 @@ input[type="checkbox"]:hover {
     justify-content: flex-start;
 
     font-size: 1.5rem;
+    max-height: 28rem
 }
 
 .leaderboard-row {
@@ -591,4 +602,45 @@ input[type="checkbox"]:hover {
     border: solid;
     border-color: var(--accent);
     border-width: .1rem;
+}
+
+textarea {
+    background-color: var(--bg-accent-dark);
+    color: var(--text);
+    font-family: "Jetbrains Mono", monospace;
+    border: none;
+    padding: .3rem;
+    border-radius: .3rem;
+    resize: none;
+}
+
+textarea:focus {
+    outline: none;
+}
+
+select {
+    background-color: var(--bg-accent-dark);
+    color: var(--text);
+    font-family: inherit;
+    border: none;
+    padding: .25rem;
+    border-radius: .25rem;
+    border-right: .25rem solid transparent;
+}
+
+.dev-panel-row select {
+    width: 100%;
+    margin-right: 0px;
+}
+
+.vertical-divider {
+    border-left: dotted;
+    border-color: var(--midtone);
+    height: 100%;
+}
+
+.scrollable {
+    overflow-y: auto;
+    scrollbar-color: var(--midtone) transparent;
+    scrollbar-width: thin;
 }

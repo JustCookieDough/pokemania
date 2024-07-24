@@ -1,0 +1,9 @@
+{% extends "basics/base.jinja" %}
+
+{% if not keywordargs %}{% set keywordargs = [{}] %}{% endif %}
+
+{% block content %}
+{% for item in items %}
+<a class="anchor-button-wide" href=" {{ url_for('_'.join(prefix + item.postfix, item.keyword_args}} ">{{ item.name }}</a>
+{% endfor %}
+{% endblock %}

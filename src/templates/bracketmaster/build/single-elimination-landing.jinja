@@ -1,0 +1,15 @@
+{% extends "basics/base.jinja" %}
+
+{% block content %}
+<h1>Single Elimination</h1>
+
+<form action="{{ url_for('bracketmaster_build_single_elim') }}" method="get"><div class="dev-panel-container">
+    <div class="dev-panel-row">
+        <span class="dev-panel-col-skinny bold large-text text-align-center">Size:</span>
+        <span class="dev-panel-col-wide"><input type="text" name="size" placeholder="Bracket Size"></span>
+    </div>
+    <a class="anchor-button-wide" onclick="document.getElementById('submit').click()">Build!</a>
+    <input type="submit" id="submit" class="hidden">
+</div></form>
+
+{% endblock %}

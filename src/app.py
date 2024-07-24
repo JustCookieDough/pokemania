@@ -7,10 +7,10 @@ from werkzeug.exceptions import HTTPException
 from urllib.parse import urlencode, unquote
 from pprint import pprint
 from typing import Optional
-import requests, secrets, random, base64
+import requests, secrets, random, base64, os, math, json as json_lib
 
 from settings import DISCORD_OAUTH2_PROVIDER_INFO, FLASK_SECRET, ADMIN_IDS
-from bracket import Bracket
+from bracket import Bracket, Competitor, Match
 
 app = Flask("__name__")
 
@@ -25,6 +25,8 @@ login = LoginManager(app)
 login.login_view = 'login'
 
 
+# region DB Classes
+
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
 
@@ -33,8 +35,8 @@ class User(UserMixin, db.Model):
     money: Mapped[int]
     avatar: Mapped[str]
 
-    is_admin: Mapped[bool] = mapped_column(default=True)
-    is_bracketmaster: Mapped[bool] = mapped_column(default=True)
+    is_admin: Mapped[bool] = mapped_column(default=False)
+    is_bracketmaster: Mapped[bool] = mapped_column(default=False)
     
     # email is optional, just for updates
     email: Mapped[Optional[str]]
@@ -43,7 +45,7 @@ class User(UserMixin, db.Model):
 class Deck(db.Model):
     __tablename__ = 'decks'
     id: Mapped[int] = mapped_column(primary_key=True)
-    deck_name: Mapped[str]
+    name: Mapped[str]
     matches: Mapped[int]
     wins: Mapped[int]
     image_uri: Mapped[Optional[str]]
@@ -52,28 +54,48 @@ class Deck(db.Model):
 class BracketData(db.Model):
     __tablename__ = 'bracket'
     id: Mapped[int] = mapped_column(primary_key=True)
-    name: Mapped[str]
-    bracket_data: Mapped[str]
+    is_active: Mapped[bool]
+    json: Mapped[bytes]
 
+# endregion
 
-########################################################################################################################
-# Helpers
-########################################################################################################################
+# region Helpers
 
-def moveEmptyBracketsToEnd(bracket_list: list[tuple[BracketData]]) -> None:
+def moveEmptyToEnd(obj_list: list[tuple[BracketData]] | list[tuple[Deck]]) -> None:
+    # moves decks/brackets with empty names to the end of the list. mutates, doesnt return.
     i = 0
-    end = len(bracket_list)
+    end = len(obj_list)
     while i < end:
-        if bracket_list[i][0].name == "":
-            bracket_list.append(bracket_list.pop(i))
+        if obj_list[i][0].name == "":
+            obj_list.append(obj_list.pop(i))
             end -= 1
         else:
             i += 1
 
 
-########################################################################################################################
-# Major Pages
-########################################################################################################################
+def databaseEntryToJson(bracket_data: BracketData) -> Bracket:
+    return base64.b64decode(bracket_data.json).decode('utf-8')
+
+
+def bracketObjectToBytes(bracket_object: Bracket) -> BracketData:
+    return base64.b64encode(bracket_object.to_json().encode('utf-8'))
+
+
+def getBracketNameFromDBEntry(bracket_data: BracketData) -> str:
+    return json_lib.loads(base64.b64decode(bracket_data.json).decode('utf-8'))['name']
+
+
+def createEmptyMatchTreeWithGivenDepth(depth: int) -> Bracket:
+    root = Match()
+    if depth == 0:
+        return root
+    root.left = createEmptyMatchTreeWithGivenDepth(depth - 1)
+    root.right = createEmptyMatchTreeWithGivenDepth(depth - 1)
+    return root
+
+# endregion
+
+# region Major Pages
 
 @app.route("/")
 def index():
@@ -89,10 +111,18 @@ def leaderboard():
     users = db.session.execute(db.select(User).order_by(User.money)).all()
     return render_template('leaderboard.jinja', users=[user[0] for user in users[::-1]])
 
+@app.errorhandler(HTTPException) 
+def not_found(e):
+    if (e.code == 403):
+        return render_template("errors/403.jinja")
+    elif (e.code == 404):
+        return render_template("errors/404.jinja")
+    else:
+        return render_template("errors/gen-error.jinja", code=e.code)
 
-########################################################################################################################
-# Login + User
-########################################################################################################################
+# endregion
+
+# region Login + User
 
 @login.user_loader
 def load_user(id):
@@ -104,13 +134,13 @@ def login():
     if not current_user.is_anonymous:
         return redirect(url_for('profile'))
     
-    return render_template('login.jinja')
+    return render_template('user/login.jinja')
 
 
 @app.route("/logout")
 def logout():
    logout_user()
-   return render_template('logout.jinja')
+   return render_template('user/logout.jinja')
 
 
 @app.route("/auth")
@@ -202,7 +232,7 @@ def callback():
 @app.route("/profile")
 @login_required
 def profile():
-    return render_template('profile.jinja')
+    return render_template('user/profile.jinja')
 
 
 @app.route("/profile/update")
@@ -223,16 +253,15 @@ def update_user():
 
     return redirect(url_for('profile'))
 
+# endregion 
 
-########################################################################################################################
-# Bracketmaster
-########################################################################################################################
+# region Bracketmaster
 
 @app.route("/bracketmaster")
 @login_required
 def bracketmaster():
     if not current_user.is_bracketmaster:
-        return redirect(url_for('index'))
+        return abort(403)
     return render_template('bracketmaster/bracketmaster.jinja')
 
 
@@ -240,8 +269,9 @@ def bracketmaster():
 @login_required
 def bracketmaster_manage_decks():
     if not current_user.is_bracketmaster:
-        return redirect(url_for('index'))
-    decks = db.session.execute(db.select(Deck).order_by(Deck.deck_name)).all()
+        return abort(403)
+    decks = db.session.execute(db.select(Deck).order_by(Deck.name)).all()
+    moveEmptyToEnd(decks)
     return render_template('bracketmaster/manage-decks.jinja', decks=decks)
 
 
@@ -249,13 +279,13 @@ def bracketmaster_manage_decks():
 @login_required
 def bracketmaster_update_deck():
     if not current_user.is_bracketmaster:
-        return redirect(url_for('index'))
+        return abort(403)
     
     id = int(request.args['id'])
     deck = db.get_or_404(Deck, id)
 
     try:
-        deck.deck_name = unquote(request.args['deck_name'])
+        deck.name = unquote(request.args['name'])
         deck.matches = int(request.args['matches'])
         deck.wins = int(request.args['wins'])
         deck.image_uri = unquote(request.args['image_uri'])
@@ -277,7 +307,7 @@ def bracketmaster_update_deck():
 @login_required
 def bracketmaster_create_deck():
     if not current_user.is_bracketmaster:
-        return redirect(url_for('index'))
+        return abort(403)
     
     found_valid_id = False
     while not found_valid_id:
@@ -288,7 +318,7 @@ def bracketmaster_create_deck():
         except:
             found_valid_id = True
 
-    deck = Deck(id=id, deck_name="", matches=0, wins=0, image_uri="")
+    deck = Deck(id=id, name="", matches=0, wins=0, image_uri="")
     db.session.add(deck)
     db.session.commit()
 
@@ -299,7 +329,7 @@ def bracketmaster_create_deck():
 @login_required
 def bracketmaster_delete_deck():
     if not current_user.is_bracketmaster:
-        return redirect(url_for('index'))
+        return abort(403)
     
     id = int(request.args['id'])
     deck = db.get_or_404(Deck, id)
@@ -319,42 +349,43 @@ def bracketmaster_delete_deck():
 @login_required
 def bracketmaster_manage_brackets():
     if not current_user.is_bracketmaster:
-        return redirect(url_for('index'))
-    brackets = db.session.execute(db.select(BracketData).order_by(BracketData.name)).all()
-    moveEmptyBracketsToEnd(brackets)
-    return render_template('bracketmaster/manage-brackets.jinja', brackets=brackets)
+        return abort(403)
+    
+    brackets = db.session.execute(db.select(BracketData)).all()
+    names = [getBracketNameFromDBEntry(bracket[0]) for bracket in brackets]
+
+    return render_template('bracketmaster/manage-brackets.jinja', brackets=brackets, names=names)
 
 
 @app.route("/bracketmaster/create-bracket")
 @login_required
 def bracketmaster_create_bracket():
     if not current_user.is_bracketmaster:
-        return redirect(url_for('index'))
+        return abort(403)
     
-    found_valid_id = False
-    while not found_valid_id:
-        try:
-            id = random.randint(0, 4294967295)
-            db.get_or_404(BracketData, id)
+    return render_template('bracketmaster/build/template-options.jinja')
+
+    # found_valid_id = False
+    # while not found_valid_id:
+    #     try:
+    #         id = random.randint(0, 4294967295)
+    #         db.get_or_404(BracketData, id)
             
-        except:
-            found_valid_id = True
+    #     except:
+    #         found_valid_id = True
 
-    b = Bracket()
-    b_data = base64.b64encode(b.to_json().encode('utf-8')).decode('utf-8')
+    # bracket = BracketData(id=id, name="New Bracket", is_active=False, json=bracketObjectToBytes(Bracket()))
+    # db.session.add(bracket)
+    # db.session.commit()
 
-    bracket = BracketData(id=id, name="", bracket_data=b_data)
-    db.session.add(bracket)
-    db.session.commit()
-
-    return redirect(url_for('bracketmaster_manage_brackets'))
+    # return redirect(url_for('bracketmaster_manage_brackets'))
 
 
 @app.route("/bracketmaster/delete-bracket")
 @login_required
 def bracketmaster_delete_bracket():
     if not current_user.is_bracketmaster:
-        return redirect(url_for('index'))
+        return abort(403)
     
     id = int(request.args['id'])
     bracket = db.get_or_404(BracketData, id)
@@ -374,13 +405,17 @@ def bracketmaster_delete_bracket():
 @login_required
 def bracketmaster_update_bracket():
     if not current_user.is_bracketmaster:
-        return redirect(url_for('index'))
+        return abort(403)
 
     id = int(request.args['id'])
     bracket = db.get_or_404(BracketData, id)
 
     try:
-        bracket.name = unquote(request.args['name'])
+        bracket_obj = Bracket(databaseEntryToJson(bracket))
+        bracket_obj.name = unquote(request.args['name'])
+        bracket.json = bracketObjectToBytes(bracket_obj)
+
+        bracket.is_active = 'is_active' in request.args        
         db.session.commit()
     except Exception as e:
         flash('there was an error updating bracket name')
@@ -390,16 +425,222 @@ def bracketmaster_update_bracket():
     return redirect(url_for('bracketmaster_manage_brackets'))
 
 
-@app.route("/bracketmaster/manage-brackets/<int:id>")
+@app.route("/bracketmaster/manage-bracket/<int:id>")
 @login_required
 def bracketmaster_edit_bracket(id):
-    flash('not implemented yet, sorry')
-    return redirect(url_for('bracketmaster_manage_brackets'))
+    if not current_user.is_bracketmaster:
+        return abort(403)
+    
+    bracket = db.get_or_404(BracketData, id)
+
+    return render_template('bracketmaster/manage-bracket.jinja', id=id, name=getBracketNameFromDBEntry(bracket))
 
 
-########################################################################################################################
-# Admin
-########################################################################################################################
+@app.route("/bracketmaster/manage_bracket/<int:id>/active_matches")
+@login_required
+def bracketmaster_manage_active_matches(id):
+    if not current_user.is_bracketmaster:
+        return abort(403)
+    
+    bracket_data = db.get_or_404(BracketData, id)
+    bracket = Bracket(databaseEntryToJson(bracket_data))
+
+    matches = [match for match in bracket.top.generate_match_list() if match.is_ready()]
+    
+    return render_template("bracketmaster/manage-active-matches.jinja", matches=matches, id=id)
+
+
+@app.route("/bracketmaster/manage_bracket/<int:id>/active_matches/declare_winner")
+@login_required
+def bracketmaster_declare_winner(id):
+    if not current_user.is_bracketmaster:
+        return abort(403)
+    
+    return redirect(url_for("bracketmaster_manage_active_matches", id=id))
+
+@app.route("/bracketmaster/manage_bracket/<int:id>/competitors")
+@login_required
+def bracketmaster_edit_competitors(id):
+    if not current_user.is_bracketmaster:
+        return abort(403)
+    
+    bracket_data = db.get_or_404(BracketData, id)
+    bracket = Bracket(databaseEntryToJson(bracket_data))
+
+    competitors = bracket.top.generate_competitor_list()
+
+    users = db.session.execute(db.select(User).order_by(User.username)).all()
+    decks = db.session.execute(db.select(Deck).order_by(Deck.name)).all()
+    
+    return render_template("bracketmaster/edit_competitors.jinja", competitors=competitors, owners=users, decks=decks, id=id)
+
+@app.route("/bracketmaster/manage_bracket/<int:id>/competitors/update")
+@login_required
+def bracketmaster_update_competitors(id):
+    if not current_user.is_bracketmaster:
+        return abort(403)
+    
+    bracket_data = db.get_or_404(BracketData, id)
+    bracket = Bracket(databaseEntryToJson(bracket_data))
+
+    competitors = []
+    for i in range(len(bracket.top.generate_competitor_list())):
+        competitor = Competitor()
+        competitor.name = request.args[f"{i}-name"] 
+        competitor.owner_id = request.args[f"{i}-owner"] 
+        competitor.deck_id = request.args[f"{i}-deck"]
+        competitors += [competitor]
+
+    bracket.top.update_competitors(competitors)
+    bracket_data.json = bracketObjectToBytes(bracket)
+    db.session.commit()
+
+    return redirect(url_for("bracketmaster_edit_competitors", id=id))
+
+
+# not a now feature
+# @app.route("/bracketmaster/manage_bracket/<int:id>/build")
+# @login_required
+# def bracketmaster_build_bracket(id):
+#     if not current_user.is_bracketmaster:
+#         return abort(403)
+#     pass
+
+
+@app.route("/bracketmaster/manage_bracket/<int:id>/edit_json", methods=['GET', 'POST'])
+@login_required
+def bracketmaster_edit_json_data(id):
+    if not current_user.is_bracketmaster:
+        return abort(403)
+    
+    bracket = db.get_or_404(BracketData, id)
+
+    if request.method == 'GET':
+        json = json_lib.dumps(json_lib.loads(databaseEntryToJson(bracket)), indent=4)
+        return render_template('bracketmaster/edit-json-data.jinja', id=id, name=getBracketNameFromDBEntry(bracket), json=json)
+    elif request.method == 'POST':
+        try:
+            encoded_json = json_lib.loads(unquote(request.data))["base64"]
+            decoded_json = base64.b64decode(encoded_json.encode("utf-8")).decode('utf-8')
+            minified_json = json_lib.dumps(json_lib.loads(decoded_json))
+            print(minified_json)
+        except:
+            return "json decode error"
+        
+        try:
+            bracket.json = bracketObjectToBytes(Bracket(minified_json))
+            db.session.commit()
+        except:
+            return "error pushing to db"
+
+        return "success! :D"
+    
+
+@app.route("/bracketmaster/create-bracket/single-elimination")
+@login_required
+def bracketmaster_build_single_elim():
+    if not current_user.is_bracketmaster:
+        return abort(403)
+    
+    if "size" not in request.args:
+        return render_template("bracketmaster/build/single-elimination-landing.jinja")
+
+    size = int(request.args["size"])
+
+    if "bracket-name" not in request.args:
+        users = db.session.execute(db.select(User).order_by(User.username)).all()
+        decks = db.session.execute(db.select(Deck).order_by(Deck.name)).all()
+        return render_template("bracketmaster/build/single-elimination.jinja", size=size, owners=users, decks=decks)
+
+    try:
+        depth = int(math.ceil(math.log2(size)))
+        top = createEmptyMatchTreeWithGivenDepth(depth)
+
+        for i in range(size):
+            competitor = Competitor()
+            competitor.name = request.args[f"{i}-name"] 
+            competitor.owner_id = request.args[f"{i}-owner"] 
+            competitor.deck_id = request.args[f"{i}-deck"]
+        
+            # determining bracket pos. based on seed. using 2**depth to allow for non-power-of-two sizes
+            if i < (2**depth) // 2:
+                bracket_pos = i*2
+            else:
+                bracket_pos = ((2**depth) - i - 1) * 2 + 1
+
+            bin_string = "{0:b}".format(bracket_pos).zfill(depth)
+
+            match = top
+            while bin_string != "":
+                if bin_string[0] == "0":
+                    match = match.left
+                else:
+                    match = match.right
+                bin_string = bin_string[1:]
+            match.competitor = competitor
+
+        b = Bracket()
+        b.name = request.args["bracket-name"]
+        b.top = top
+    except Exception as e:
+        flash('something went wrong when building the bracket object')
+        flash(str(e))
+        return redirect(url_for("bracketmaster_manage_brackets"))
+    
+    try:
+        found_valid_id = False
+        while not found_valid_id:
+            try:
+                id = random.randint(0, 4294967295)
+                db.get_or_404(BracketData, id)
+                
+            except:
+                found_valid_id = True
+
+        bracket = BracketData(id=id, is_active=False, json=bracketObjectToBytes(b))
+        db.session.add(bracket)
+        db.session.commit()
+    except Exception as e:
+        flash('something went wrong when pushing your bracket object to the database')
+        flash(str(e))
+        return redirect(url_for("bracketmaster_manage_brackets"))
+        
+    return redirect(url_for("bracketmaster_manage_brackets"))
+
+
+@app.route("/bracketmaster/create-bracket/empty")
+@login_required
+def bracketmaster_build_empty():
+    if not current_user.is_bracketmaster:
+        return abort(403)
+    
+    try:
+        found_valid_id = False
+        while not found_valid_id:
+            try:
+                id = random.randint(0, 4294967295)
+                db.get_or_404(BracketData, id)
+                
+            except:
+                found_valid_id = True
+
+        b = Bracket()
+        b.name = "Empty Bracket"
+
+        bracket = BracketData(id=id, is_active=False, json=bracketObjectToBytes(b))
+        db.session.add(bracket)
+        db.session.commit()
+    except Exception as e:
+        flash('something went wrong when pushing your bracket object to the database')
+        flash(str(e))
+        return redirect(url_for("bracketmaster_manage_brackets"))
+        
+    return redirect(url_for("bracketmaster_manage_brackets"))
+
+
+# endregion
+
+# region Admin
 
 @app.route("/admin")
 @login_required
@@ -420,7 +661,6 @@ def admin_nuke_table():
         flash(f"bad table name. table {table} not in database")
         return redirect(url_for('admin'))
 
-    print(type(db.metadata.tables['users']))
     db.session.execute(db.metadata.tables[table].delete())
     db.session.commit()
 
@@ -430,6 +670,19 @@ def admin_nuke_table():
     else:
         return redirect(url_for('admin'))
     
+
+@app.route("/admin/nuke-all-tables")
+@login_required
+def admin_nuke_all_tables():
+    if not current_user.is_admin:
+        return abort(403)
+    
+    db.drop_all()
+    db.create_all()
+    db.session.commit()
+
+    return redirect(url_for('index'))
+
 
 @app.route("/admin/test-endpoint")
 @login_required
@@ -444,7 +697,7 @@ def admin_test():
 @login_required
 def admin_manage_users():
     if not current_user.is_admin:
-        return redirect(url_for('index'))
+        return abort(403)
     users = db.session.execute(db.select(User).order_by(User.username)).all()
     return render_template("admin/manage-users.jinja", users=users)
 
@@ -515,19 +768,41 @@ def admin_test_landing_flash():
     return redirect(url_for('admin'))
 
 
-# error handler. tosses you to 404 page for pnf errors, a different page for everything else
-@app.errorhandler(HTTPException) 
-def not_found(e):
-    if (e.code == 403):
-        return render_template("errors/403.jinja")
-    elif (e.code == 404):
-        return render_template("errors/404.jinja")
-    else:
-        return render_template("errors/gen-error.jinja", code=e.code)
+@app.route("/admin/build-test-db")
+@login_required
+def admin_build_test_db():
+    if not current_user.is_admin:
+        return redirect(url_for('index'))
+    
+    db.drop_all()
+    db.create_all()
+
+    # users
+    scott = User(id=335575787509907456, username='justcookiedough', money=125, avatar="https://cdn.discordapp.com/avatars/335575787509907456/91bc0a112ec59a4f16e621f12746706f.png", email='scottangelides@gmail.com', is_admin=True, is_bracketmaster=True)
+    scott_alt = User(id=971243193750401044, username='cookiedonut7182', money=42, avatar="https://cdn.discordapp.com/avatars/971243193750401044/d5d54dd355c84baeb4b5b8d06d522f99.png")
+    db.session.add(scott)
+    db.session.add(scott_alt)
+
+    # decks
+    smeargle = Deck(id=1234, name="Smeargle", matches=0, wins=0, image_uri="https://tiermaker.com/images/media/template_images/2024/17264189/pokmon-tcg-tournament-17264189/012d0047-fed7-4ea7-a42a-1f2f6f80b7f9.png")
+    steven = Deck(id=42, name="Steven", matches=100, wins=100, image_uri="https://tiermaker.com/images/media/template_images/2024/17264189/pokmon-tcg-tournament-17264189/b47423a2-65f4-48b7-8c7c-a4ac706ae390.png")
+    db.session.add(smeargle)
+    db.session.add(steven)
+
+    # bracket
+    bracket = BracketData(id=8765309, is_active=True, json=bracketObjectToBytes(Bracket('{"name": "Test Bracket", "matches": [{"competitor": -1, "left": 1, "right": 8}, {"competitor": -1, "left": 2, "right": 5}, {"competitor": -1, "left": 3, "right": 4}, {"competitor": {"name": "Cookie A", "owner_id": "335575787509907456", "deck_id": "42"}, "left": -1, "right": -1}, {"competitor": {"name": "Donut D", "owner_id": "971243193750401044", "deck_id": "1234"}, "left": -1, "right": -1}, {"competitor": -1, "left": 6, "right": 7}, {"competitor": {"name": "Donut A", "owner_id": "971243193750401044", "deck_id": "1234"}, "left": -1, "right": -1}, {"competitor": {"name": "Cooke D", "owner_id": "335575787509907456", "deck_id": "42"}, "left": -1, "right": -1}, {"competitor": -1, "left": 9, "right": 12}, {"competitor": -1, "left": 10, "right": 11}, {"competitor": {"name": "Cookie B", "owner_id": "335575787509907456", "deck_id": "42"}, "left": -1, "right": -1}, {"competitor": {"name": "Donut C", "owner_id": "971243193750401044", "deck_id": "1234"}, "left": -1, "right": -1}, {"competitor": -1, "left": 13, "right": 14}, {"competitor": {"name": "Donut B", "owner_id": "971243193750401044", "deck_id": "1234"}, "left": -1, "right": -1}, {"competitor": {"name": "Cookie C", "owner_id": "335575787509907456", "deck_id": "42"}, "left": -1, "right": -1}]}')))
+    db.session.add(bracket)
+
+    db.session.commit()
+
+    flash('done!')
+    return redirect(url_for('admin'))
 
 
-# THIS IS FOR DEV PURPOSES CAUSE IM LAZY AND DONT WANNA DO IT MANUALLY EVERY TIME
-# UNDER NO CIRCUMSTANCES SHOULD THIS BE IN THE FINAL VERSION
+# endregion
+
+# region Dev
+
 @app.route("/give_admin")
 def give_admin():
     for id in ADMIN_IDS:
@@ -539,10 +814,19 @@ def give_admin():
 
     return redirect(url_for("admin"))
 
+# endregion
+
 
 with app.app_context():
     db.create_all()
 
-
 if __name__ == "__main__":
+
+    # ensure correct working directory
+    cwd_list = os.getcwd().split("/")
+    if not (cwd_list[-2] == "pokemania" and cwd_list[-1] == "src"):
+        print("file is not running from ./src - changing cwd")
+        os.chdir("/".join(__file__.split("/")[:-1]))
+        print(f"new cwd is {os.getcwd()}")
+
     app.run(debug=True, port=5678)

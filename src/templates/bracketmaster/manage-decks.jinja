@@ -1,25 +1,10 @@
-{% extends "base.jinja" %}
+{% extends "basics/base.jinja" %}
 
-{% set hasMiniNav, not_screen_centered, not_squid_bg = False, False, False %} {# technically optional, just to demonstate what state variables can be changed #}
+{% set has_mini_nav, not_screen_centered, not_squid_bg, is_unboxed, has_flash = False, False, False, False, True %} {# technically optional, just to demonstate what state variables can be changed #}
 
 {% block content %}
-<div class="main-box">
-    <h1>Decks</h1>
-    <a href="{{ url_for('bracketmaster') }}" class="anchor-button-wide">Back</a>
-
-    {# testing flash #}
-    {% with messages = get_flashed_messages() %}
-        {% if messages %}
-            <h3>Response:</h3>
-            <ul>
-            {% for message in messages %}
-                <li>{{ message }}</li>
-            {% endfor%}
-            </ul>
-        {% endif %}
-    {% endwith %}
-
-    <div class="dev-panel-container">
+<h1>Decks</h1>
+<div class="dev-panel-container">
     <div class="dev-panel-row bold">
         <span class="dev-panel-col-wide">ID</span>
         <span class="dev-panel-col-wide">Name</span>
@@ -29,12 +14,13 @@
         <span class="dev-panel-col-skinny text-align-center">Update</span>
         <span class="dev-panel-col-skinny text-align-center">Delete</span>
     </div>
+    <div class="scrollable" style="max-height:25rem;">
     {% for deck in decks %}
     <div class="divider" style="width:100%;"></div>
     <form action="{{ url_for('bracketmaster_update_deck') }}" method="get"><div class="dev-panel-row">
         <input name="id" type="hidden" value="{{ deck[0].id }}">
         <span class="dev-panel-col-wide">{{ deck[0].id }}</span>
-        <span class="dev-panel-col-wide"><input type="text" name="deck_name" value={{ deck[0].deck_name }}></span>
+        <span class="dev-panel-col-wide"><input type="text" name="name" value={{ deck[0].name }}></span>
         <span class="dev-panel-col-medium"><input type="text" name="matches" value={{ deck[0].matches }}></span>
         <span class="dev-panel-col-medium"><input type="text" name="wins" value={{ deck[0].wins }}></span>
         <span class="dev-panel-col-wide"><input type="text" name="image_uri" value={{ deck[0].image_uri }}></span>
@@ -42,8 +28,14 @@
         <span class="dev-panel-col-skinny"><a class="anchor-button-icon" href="{{ url_for('bracketmaster_delete_deck', id=deck[0].id) }}"><i class="fa-solid fa-trash"></i></a></span>
     </div></form>
     {% endfor %}
-    <a class="anchor-button-icon" href="{{ url_for('bracketmaster_create_deck') }}"><i class="fa-solid fa-square-plus"></i></a>
     </div>
-
+    <div class="dev-panel-row">
+    <div class="dev-panel-row">
+        <span class="dev-panel-col-skinny"><a class="anchor-button-icon" href="{{ url_for('bracketmaster') }}"><i class="fa-solid fa-arrow-left"></i></a></span>
+        <span class="dev-panel-col-skinny"><a class="anchor-button-icon" href="{{ url_for('bracketmaster_create_deck') }}"><i class="fa-solid fa-square-plus"></i></a></span>
+    </div>
+        
+    </div>
+    
 </div>
 {% endblock content %}

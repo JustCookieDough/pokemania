@@ -1,0 +1,9 @@
+{% extends 'basics/base.jinja' %}
+
+{% set has_flash = True %}
+
+{% block content %}
+<h1>Templates</h1>
+<a class="anchor-button-wide" href="{{ url_for('bracketmaster_build_single_elim') }}">Single Elimination</a>
+<a class="anchor-button-wide" href="{{ url_for('bracketmaster_build_empty') }}">Empty</a>
+{% endblock%}

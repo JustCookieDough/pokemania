@@ -1,25 +1,23 @@
-{% extends "base.jinja" %}
+{% extends "basics/base.jinja" %}
 
-{% set hasMiniNav, not_screen_centered, not_squid_bg = False, False, False %} {# technically optional, just to demonstate what state variables can be changed #}
+{% set has_mini_nav, not_screen_centered, not_squid_bg, is_unboxed = False, False, False, False %} {# technically optional, just to demonstate what state variables can be changed #}
 
 {% block content %}
-<div class="main-box">
-    {# <h1>Leaderboard</h1> #} {# i think this might not be necessary. need to see what looks better when we have more users#} {# got rid of it lol#}
-    <div class="leaderboard-container">
-    {# <div class="leaderboard-row bold">
-        <span class="leaderboard-rank">Rank</span>
-        <span class="leaderboard-name">Username</span>
-        <span class="leaderboard-money">Coins</span>
-    </div> #}
+{# <h1>Leaderboard</h1> #} {# i think this might not be necessary. need to see what looks better when we have more users#} {# got rid of it lol#}
+<div class="leaderboard-container scrollable">
+{# <div class="leaderboard-row bold">
+    <span class="leaderboard-rank">Rank</span>
+    <span class="leaderboard-name">Username</span>
+    <span class="leaderboard-money">Coins</span>
+</div> #}
 
 
-    {% for user in users %}
-    <div class="leaderboard-row {{ loop.cycle('lr-dark', '') }}">
-        <span class="leaderboard-rank"><t>{{ '<i class="fa-solid fa-medal"></i>' if loop.index == 1 else loop.index }}</t></span>
-        <span class="leaderboard-name"><img class="avatar-medium" src="{{ user.avatar }}"><t>{{ user.username }}</t></span>
-        <span class="leaderboard-money"><i class="fa-solid fa-coin-vertical"></i>{{ user.money }}</span>
-    </div>
-    {% endfor %}
-    </div>
+{% for user in users %}
+<div class="leaderboard-row {{ loop.cycle('lr-dark', '') }}">
+    <span class="leaderboard-rank"><t>{{ '<i class="fa-solid fa-medal"></i>' if loop.index == 1 else loop.index }}</t></span>
+    <span class="leaderboard-name"><img class="avatar-medium" src="{{ user.avatar }}"><t>{{ user.username }}</t></span>
+    <span class="leaderboard-money"><i class="fa-solid fa-coin-vertical"></i>{{ user.money }}</span>
+</div>
+{% endfor %}
 </div>
 {% endblock content %}

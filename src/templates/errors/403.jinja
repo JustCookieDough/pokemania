@@ -1,11 +1,9 @@
-{% extends "base.jinja" %}
+{% extends "basics/base.jinja" %}
 
-{% set hasMiniNav, screen_centered, squid_bg = False, False, False %}
+{% set has_mini_nav, not_screen_centered, not_squid_bg, is_unboxed = False, False, False, False %}
 
 {% block content %}
-<div class="main-box">
-    <t>you silly goose! you can't be here!</t>
-    <t>code 403: forbidden</t>
-    <a href="{{ url_for('index') }}" class="funky-button">go home</a>
-</div>
+<t>you silly goose! you can't be here!</t>
+<t>code 403: forbidden</t>
+<a href="{{ url_for('index') }}" class="funky-button">go home</a>
 {% endblock content %}

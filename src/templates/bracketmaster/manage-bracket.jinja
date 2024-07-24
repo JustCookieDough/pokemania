@@ -1,0 +1,14 @@
+{% extends "basics/base.jinja" %}
+
+{% set has_mini_nav, not_screen_centered, not_squid_bg, is_unboxed = False, False, False, False %} {# technically optional, just to demonstate what state variables can be changed #}
+
+{% block content %}
+<h1>{{ name }}</h1>
+<a class="anchor-button-wide" href="{{ url_for('bracketmaster_manage_active_matches', id=id) }}">Manage Active Matches</a>
+{# <a class="anchor-button-wide" href="{{ url_for('bracketmaster_manage_bets', id=id) }}">Manage Bets</a> #} {# think this should go in the manage active matches win #}
+<a class="anchor-button-wide" href="{{ url_for('bracketmaster_edit_competitors', id=id) }}">Edit Competitors</a>
+{# <a class="anchor-button-wide" href="{{ url_for('bracketmaster_build_bracket', id=id) }}">Build Bracket</a> #} {# not implimented #}
+<a class="anchor-button-wide" href="{{ url_for('bracketmaster_edit_json_data', id=id)}}">Edit JSON Data</a>
+<div class="divider" style="width:100%"></div>
+<a class="anchor-button-wide" href="{{ url_for('bracketmaster_manage_brackets') }}">Back</a>
+{% endblock content %}

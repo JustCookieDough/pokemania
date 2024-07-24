@@ -1,0 +1,33 @@
+{% extends "basics/base.jinja" %}
+
+{% set has_mini_nav, not_screen_centered, not_squid_bg, is_unboxed = False, False, False, False %} {# technically optional, just to demonstate what state variables can be changed #}
+
+{% block content %}
+<div class="profile-container">
+    <div class="profile-top-row">
+        <img class="avatar-big" src="{{ current_user.avatar }}">
+        <div class="profile-top-right">
+            <div class="big-username"><h1>{{ current_user.username }}</h1></div>
+            <p class="id"><i>(ID: {{ current_user.id }})</i></p>
+            <span class="profile-money"><i class="fa-solid fa-coin-vertical"></i><p>{{ current_user.money}}</p></span>
+        </div>
+    </div>
+    <form action="{{ url_for('update_user') }}">
+        <div class="profile-input-row"><h3>Email</h3><input type="text" name="email" value="{{ '' if current_user.email == None else current_user.email }}" placeholder="ash.ketchum@oaklabs.org"></div>
+        <div class="profile-input-row"><h3>Avatar URI</h3><input type="text" name="avatar" value="{{ current_user.avatar }}"></div>
+        <div class="profile-button-row">
+        <a class="funky-button" href="{{ url_for('logout') }}"><i class="fa-solid fa-right-from-bracket"></i>Log Out</a>
+        <a class="funky-button" id="update-settings-anchor"><i class="fa-solid fa-sliders"></i>Update Settings</a>
+        <input class="hidden" type="submit" id="update-form-submit">
+    </div>
+    </form>
+</div>
+{% endblock content %}
+
+{% block scripts %}
+<script>
+anchor = document.getElementById('update-settings-anchor')
+submit = document.getElementById('update-form-submit')
+anchor.addEventListener('click', () => submit.click())
+</script>
+{% endblock%}

@@ -1,22 +1,10 @@
-{% extends "base.jinja" %}
+{% extends "basics/base.jinja" %}
 
-{% set hasMiniNav, not_screen_centered, not_squid_bg = False, False, False %} {# technically optional, just to demonstate what state variables can be changed #}
+{% set has_mini_nav, not_screen_centered, not_squid_bg, is_unboxed, has_flash = False, False, False, False, True %} {# technically optional, just to demonstate what state variables can be changed #}
 
 {% block content %}
-<div class="main-box">
-    <h1>Bracketmaster</h1>
-    <a class="anchor-button-wide" href="{{ url_for('bracketmaster_manage_brackets') }}">Manage Brackets</a>
-    <a class="anchor-button-wide" href="{{ url_for('bracketmaster_manage_decks') }}">Manage Decks</a>
-
-    {% with messages = get_flashed_messages() %}
-        {% if messages %}
-            <h3>Response:</h3>
-            <ul>
-            {% for message in messages%}
-                <li>{{ message }}</li>
-            {% endfor%}
-            </ul>
-        {% endif %}
-    {% endwith %}
-</div>
+<h1>Bracketmaster</h1>
+<a class="anchor-button-wide" href="{{ url_for('bracketmaster_manage_brackets') }}">Manage Brackets</a>
+<a class="anchor-button-wide" href="{{ url_for('bracketmaster_manage_decks') }}">Manage Decks</a>
+<a class="anchor-button-icon" href="{{ url_for('index') }}"><i class="fa-solid fa-arrow-left"></i></a>
 {% endblock content %}
