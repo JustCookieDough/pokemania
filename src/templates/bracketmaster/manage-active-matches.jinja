@@ -13,10 +13,10 @@
 <div class="scrollable" style="max-height: 30rem;" id="scroll">
 {% for match in matches %}
 <div class="dev-panel-row">
-    <span class="dev-panel-col-skinny"><a class="anchor-button-icon"><i class="fa-solid fa-trophy"></i></a></span>
+    <span class="dev-panel-col-skinny"><a class="anchor-button-icon" href="{{ url_for('bracketmaster_declare_winner', id=id, index=loop.index0, competitor='left') }}"><i class="fa-solid fa-trophy"></i></a></span>
     <span class="dev-panel-col-wide">{{ match.left.competitor.name }}</span>
     <span class="dev-panel-col-wide text-align-right">{{ match.right.competitor.name }}</span>
-    <span class="dev-panel-col-skinny"><a class="anchor-button-icon"><i class="fa-solid fa-trophy"></i></a></span>
+    <span class="dev-panel-col-skinny"><a class="anchor-button-icon" href="{{ url_for('bracketmaster_declare_winner', id=id, index=loop.index0, competitor='right') }}"><i class="fa-solid fa-trophy"></i></a></span>
     <div class="vertical-divider" style="margin: 0 .5rem 0; height:5.8rem"></div>
     <span class="dev-panel-col-skinny"><a class="anchor-button-icon"><i class="fa-solid fa-coin-vertical"></i></a></span>
 </div>

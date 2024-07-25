@@ -78,7 +78,12 @@ class Match:
         return self.left.competitor and self.right.competitor
     
     def declare_winner(self, leftIsWinner: bool) -> None:
-        self.competitor = self.left.competitor if leftIsWinner else self.right.competitor
+        if leftIsWinner:
+            self.competitor = self.left.competitor
+            self.left.competitor = None
+        else:
+            self.competitor = self.right.competitor
+            self.right.competitor = None
 
     # this is icky but not enough for me to care
     def generate_match_list(self) -> list[Match]:
@@ -86,6 +91,14 @@ class Match:
                 (self.left.generate_match_list() if self.left else []) + \
                 (self.right.generate_match_list() if self.right else [])
     
+    def override_same_match(self, old_match: Match, new_match: Match):
+        if self == old_match:
+            self = new_match
+        else:
+            if self.left:
+                self.left.override_same_match(old_match, new_match)
+            if self.right:
+                self.right.override_same_match(old_match, new_match)
 
     def generate_competitor_list(self) -> list[Competitor]:
         return [self.competitor] if self.competitor else [] + \
@@ -99,6 +112,15 @@ class Match:
             self.left.update_competitors(competitors)
             self.right.update_competitors(competitors)
 
+    # def __eq__(self, value: object) -> bool:
+    #     if not isinstance(value, Match):
+    #         return False
+        
+    #     return self.competitor == value.competitor and self.left == value.left and self.right == value.right
+    
+    def __str__(self) -> str:
+        return f"Match ~ Competitor:{str(self.competitor)}\nLeft -- {str(self.left)}\nRight -- {str(self.right)}"
+
 
 class Competitor:
     name: str
@@ -107,6 +129,13 @@ class Competitor:
 
     def __str__(self):
         return f'Competitor ~ name: "{self.name}", owner: {self.owner_id}, deck: {self.deck_id};'
+    
+    def __eq__(self, value: object) -> bool:
+        if not isinstance(value, Competitor):
+            return False
+        
+        return self.name == value.name and self.owner_id == value.owner_id and self.deck_id == value.deck_id
+
 
 
 

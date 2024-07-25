@@ -3,10 +3,12 @@
 {% set has_mini_nav, not_screen_centered, not_squid_bg, is_unboxed = False, False, False, False %} {# technically optional, just to demonstate what state variables can be changed #}
 
 {% block content %}
-<p>index</p>
-{% if not current_user.is_anonymous %}
-<p>howdy, {{current_user.username}}!</p>
-<p>your id is {{current_user.id}}</p>
-<a class="anchor-button-wide" href="{{ url_for('give_admin') }}">Give Scott/Will Admin</a>
-{% endif %}
+<div class="bracket-box">
+    {% for line in vert_lines %}
+        <div class="bracket-vert-line" style="top:{{ line.x/10 }}rem;left:{{ line.y/10 }}rem;height:{{ line.size/10 }}rem;"></div>  {# dividing by 10 to make nicer unit sizes #}
+    {% endfor %}
+    {% for line in hori_lines %}
+        <div class="bracket-hori-line" style="top:{{ line.x/10 }}rem;left:{{ line.y/10 }}rem;width:{{ line.size/10 }}rem;"></div>  {# dividing by 10 to make nicer unit sizes #}
+    {% endfor %}
+</div>
 {% endblock content %}

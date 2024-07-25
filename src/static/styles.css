@@ -644,3 +644,22 @@ select {
     scrollbar-color: var(--midtone) transparent;
     scrollbar-width: thin;
 }
+
+.bracket-box {
+    width: 56rem;
+    height: 32rem;
+}
+
+.bracket-vert-line {
+    position: relative;
+    border-left: dotted;
+    border-color: var(--midtone);
+    width: 0;
+}
+
+.bracket-hori-line {
+    position: relative;
+    border-top: dotted;
+    border-color: var(--midtone);
+    height: 0;
+}

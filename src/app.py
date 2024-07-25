@@ -77,7 +77,7 @@ def databaseEntryToJson(bracket_data: BracketData) -> Bracket:
     return base64.b64decode(bracket_data.json).decode('utf-8')
 
 
-def bracketObjectToBytes(bracket_object: Bracket) -> BracketData:
+def bracketObjectToBytes(bracket_object: Bracket) -> bytes:
     return base64.b64encode(bracket_object.to_json().encode('utf-8'))
 
 
@@ -95,11 +95,27 @@ def createEmptyMatchTreeWithGivenDepth(depth: int) -> Bracket:
 
 # endregion
 
-# region Major Pages
+# region Bracket
 
 @app.route("/")
 def index():
-    return render_template('index.jinja')
+    # current display is 560x320 units (1 unit = 1/10 of a rem)
+
+    return render_template('index.jinja', vert_lines=[Line(20, 50, 70)], hori_lines=[Line(120, 150, 90)])
+
+class Line():
+    x: float
+    y: float
+    size: float
+
+    def __init__(self, x: float, y: float, size: float) -> None:
+        self.x = x
+        self.y = y
+        self.size = size
+
+# endregion
+
+# region Major Pages
 
 @app.route("/bets")
 @login_required
@@ -450,13 +466,23 @@ def bracketmaster_manage_active_matches(id):
     return render_template("bracketmaster/manage-active-matches.jinja", matches=matches, id=id)
 
 
-@app.route("/bracketmaster/manage_bracket/<int:id>/active_matches/declare_winner")
+@app.route("/bracketmaster/manage_bracket/<int:id>/active_matches/declare_winner/<int:index>/<string:competitor>")
 @login_required
-def bracketmaster_declare_winner(id):
+def bracketmaster_declare_winner(id, index, competitor):
     if not current_user.is_bracketmaster:
         return abort(403)
     
+    bracket_data = db.get_or_404(BracketData, id)
+    bracket = Bracket(databaseEntryToJson(bracket_data))
+
+    matches = [match for match in bracket.top.generate_match_list() if match.is_ready()]
+    bracket.top.override_same_match(matches[index], matches[index].declare_winner(competitor == "left"))
+
+    bracket_data.json = bracketObjectToBytes(bracket)
+    db.session.commit()
+
     return redirect(url_for("bracketmaster_manage_active_matches", id=id))
+
 
 @app.route("/bracketmaster/manage_bracket/<int:id>/competitors")
 @login_required
@@ -472,7 +498,8 @@ def bracketmaster_edit_competitors(id):
     users = db.session.execute(db.select(User).order_by(User.username)).all()
     decks = db.session.execute(db.select(Deck).order_by(Deck.name)).all()
     
-    return render_template("bracketmaster/edit_competitors.jinja", competitors=competitors, owners=users, decks=decks, id=id)
+    return render_template("bracketmaster/edit-competitors.jinja", competitors=competitors, owners=users, decks=decks, id=id)
+
 
 @app.route("/bracketmaster/manage_bracket/<int:id>/competitors/update")
 @login_required
@@ -790,7 +817,7 @@ def admin_build_test_db():
     db.session.add(steven)
 
     # bracket
-    bracket = BracketData(id=8765309, is_active=True, json=bracketObjectToBytes(Bracket('{"name": "Test Bracket", "matches": [{"competitor": -1, "left": 1, "right": 8}, {"competitor": -1, "left": 2, "right": 5}, {"competitor": -1, "left": 3, "right": 4}, {"competitor": {"name": "Cookie A", "owner_id": "335575787509907456", "deck_id": "42"}, "left": -1, "right": -1}, {"competitor": {"name": "Donut D", "owner_id": "971243193750401044", "deck_id": "1234"}, "left": -1, "right": -1}, {"competitor": -1, "left": 6, "right": 7}, {"competitor": {"name": "Donut A", "owner_id": "971243193750401044", "deck_id": "1234"}, "left": -1, "right": -1}, {"competitor": {"name": "Cooke D", "owner_id": "335575787509907456", "deck_id": "42"}, "left": -1, "right": -1}, {"competitor": -1, "left": 9, "right": 12}, {"competitor": -1, "left": 10, "right": 11}, {"competitor": {"name": "Cookie B", "owner_id": "335575787509907456", "deck_id": "42"}, "left": -1, "right": -1}, {"competitor": {"name": "Donut C", "owner_id": "971243193750401044", "deck_id": "1234"}, "left": -1, "right": -1}, {"competitor": -1, "left": 13, "right": 14}, {"competitor": {"name": "Donut B", "owner_id": "971243193750401044", "deck_id": "1234"}, "left": -1, "right": -1}, {"competitor": {"name": "Cookie C", "owner_id": "335575787509907456", "deck_id": "42"}, "left": -1, "right": -1}]}')))
+    bracket = BracketData(id=8765309, is_active=True, json=bracketObjectToBytes(Bracket('{"name": "Test Bracket", "matches": [{"competitor": -1, "left": 1, "right": 8}, {"competitor": -1, "left": 2, "right": 5}, {"competitor": -1, "left": 3, "right": 4}, {"competitor": {"name": "Cookie A", "owner_id": "335575787509907456", "deck_id": "42"}, "left": -1, "right": -1}, {"competitor": {"name": "Donut D", "owner_id": "971243193750401044", "deck_id": "1234"}, "left": -1, "right": -1}, {"competitor": -1, "left": 6, "right": 7}, {"competitor": {"name": "Donut A", "owner_id": "971243193750401044", "deck_id": "1234"}, "left": -1, "right": -1}, {"competitor": {"name": "Cookie D", "owner_id": "335575787509907456", "deck_id": "42"}, "left": -1, "right": -1}, {"competitor": -1, "left": 9, "right": 12}, {"competitor": -1, "left": 10, "right": 11}, {"competitor": {"name": "Cookie B", "owner_id": "335575787509907456", "deck_id": "42"}, "left": -1, "right": -1}, {"competitor": {"name": "Donut C", "owner_id": "971243193750401044", "deck_id": "1234"}, "left": -1, "right": -1}, {"competitor": -1, "left": 13, "right": 14}, {"competitor": {"name": "Donut B", "owner_id": "971243193750401044", "deck_id": "1234"}, "left": -1, "right": -1}, {"competitor": {"name": "Cookie C", "owner_id": "335575787509907456", "deck_id": "42"}, "left": -1, "right": -1}]}')))
     db.session.add(bracket)
 
     db.session.commit()
