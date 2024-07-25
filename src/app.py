@@ -99,9 +99,9 @@ def createEmptyMatchTreeWithGivenDepth(depth: int) -> Bracket:
 
 @app.route("/")
 def index():
-    # current display is 560x320 units (1 unit = 1/10 of a rem)
+    # current display is 480x256 units (1 unit = .125rem = 2px w/ default rem size) [it accepts floats so if you wanna get pixel precise .5s'll getcha there]
 
-    return render_template('index.jinja', vert_lines=[Line(20, 50, 70)], hori_lines=[Line(120, 150, 90)])
+    return render_template('index.jinja', vert_lines=[Line(20, 0, 10), Line(30, 0, 20), Line(40, 0, 40), Line(50, 0, 80), Line(60, 0, 160)], hori_lines=[Line(120, 150, 90)])
 
 class Line():
     x: float
@@ -112,6 +112,8 @@ class Line():
         self.x = x
         self.y = y
         self.size = size
+
+# build out an editor for making brackets (or at least a code editor with live preview and qol features)
 
 # endregion
 
@@ -524,8 +526,9 @@ def bracketmaster_update_competitors(id):
 
     return redirect(url_for("bracketmaster_edit_competitors", id=id))
 
-
 # not a now feature
+# https://anseki.github.io/leader-line/
+# https://anseki.github.io/plain-draggable/
 # @app.route("/bracketmaster/manage_bracket/<int:id>/build")
 # @login_required
 # def bracketmaster_build_bracket(id):

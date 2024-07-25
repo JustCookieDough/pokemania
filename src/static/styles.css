@@ -13,6 +13,8 @@
     font-size: medium;
     font-family: "Plus Jakarta Sans", "Helvetica", sans-serif;
     font-weight: 500;
+
+    font-size: 16px;
 }
 
 a {
@@ -646,19 +648,20 @@ select {
 }
 
 .bracket-box {
-    width: 56rem;
+    width: 60rem;
     height: 32rem;
+    position: relative;
 }
 
 .bracket-vert-line {
-    position: relative;
+    position: absolute;
     border-left: dotted;
     border-color: var(--midtone);
     width: 0;
 }
 
 .bracket-hori-line {
-    position: relative;
+    position: absolute;
     border-top: dotted;
     border-color: var(--midtone);
     height: 0;

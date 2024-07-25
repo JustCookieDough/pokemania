@@ -5,10 +5,10 @@
 {% block content %}
 <div class="bracket-box">
     {% for line in vert_lines %}
-        <div class="bracket-vert-line" style="top:{{ line.x/10 }}rem;left:{{ line.y/10 }}rem;height:{{ line.size/10 }}rem;"></div>  {# dividing by 10 to make nicer unit sizes #}
+        <div class="bracket-vert-line" style="left:{{ line.x/8 }}rem;top:{{ line.y/8 }}rem;height:{{ line.size/8 }}rem;"></div>  {# dividing by 8 to make nicer unit sizes #}
     {% endfor %}
     {% for line in hori_lines %}
-        <div class="bracket-hori-line" style="top:{{ line.x/10 }}rem;left:{{ line.y/10 }}rem;width:{{ line.size/10 }}rem;"></div>  {# dividing by 10 to make nicer unit sizes #}
+        <div class="bracket-hori-line" style="left:{{ line.x/8 }}rem;top:{{ line.y/8 }}rem;width:{{ line.size/8 }}rem;"></div>  {# dividing by 8 to make nicer unit sizes #}
     {% endfor %}
 </div>
 {% endblock content %}
