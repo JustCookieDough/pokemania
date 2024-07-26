@@ -666,3 +666,10 @@ select {
     border-color: var(--midtone);
     height: 0;
 }
+
+.bracket-image {
+    position: absolute;
+    border: dotted;
+    border-color: var(--midtone);
+    border-radius: .5rem;
+}

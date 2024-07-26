@@ -4,11 +4,20 @@
 
 {% block content %}
 <div class="bracket-box">
-    {% for line in vert_lines %}
-        <div class="bracket-vert-line" style="left:{{ line.x/8 }}rem;top:{{ line.y/8 }}rem;height:{{ line.size/8 }}rem;"></div>  {# dividing by 8 to make nicer unit sizes #}
+    {% for line in draw_data.lines %}
+        {% if line.isVert %}
+            <div class="bracket-vert-line" style="left:{{ line.x/8 }}rem;top:{{ line.y/8 }}rem;height:{{ line.size/8 }}rem;"></div>  {# dividing by 8 to make nicer unit sizes #}
+        {% else %}
+            <div class="bracket-hori-line" style="left:{{ line.x/8 }}rem;top:{{ line.y/8 }}rem;width:{{ line.size/8 }}rem;"></div>  {# dividing by 8 to make nicer unit sizes #}
+        {% endif %}
     {% endfor %}
-    {% for line in hori_lines %}
-        <div class="bracket-hori-line" style="left:{{ line.x/8 }}rem;top:{{ line.y/8 }}rem;width:{{ line.size/8 }}rem;"></div>  {# dividing by 8 to make nicer unit sizes #}
+    {% for image in draw_data.images %}
+        {% if matches[loop.index0].competitor %}
+            <img class="bracket-image" src="{{ decks[matches[loop.index0].competitor.deck_id] }}" style="left:{{ image.x/8 }}rem;top:{{ image.y/8 }}rem;width:{{ draw_data.image_size[0]/8 }}rem;height:{{ draw_data.image_size[1]/8 }}rem;">
+        {% else %}
+            <div class="bracket-image" style="left:{{ image.x/8 }}rem;top:{{ image.y/8 }}rem;width:{{ draw_data.image_size[0]/8 }}rem;height:{{ draw_data.image_size[1]/8 }}rem;"></div>
+        {% endif %}
     {% endfor %}
 </div>
 {% endblock content %}
+{# https://sadielew.com/cdn/shop/products/ACNH_TomNook-1.jpg?v=1582660685&width=1946 #}

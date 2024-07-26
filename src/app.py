@@ -7,10 +7,11 @@ from werkzeug.exceptions import HTTPException
 from urllib.parse import urlencode, unquote
 from pprint import pprint
 from typing import Optional
-import requests, secrets, random, base64, os, math, json as json_lib
+import requests, secrets, random, base64, os, math, json
 
 from settings import DISCORD_OAUTH2_PROVIDER_INFO, FLASK_SECRET, ADMIN_IDS
 from bracket import Bracket, Competitor, Match
+from draw import DrawData, Line, BracketImage
 
 app = Flask("__name__")
 
@@ -55,7 +56,8 @@ class BracketData(db.Model):
     __tablename__ = 'bracket'
     id: Mapped[int] = mapped_column(primary_key=True)
     is_active: Mapped[bool]
-    json: Mapped[bytes]
+    bracket_json: Mapped[bytes] # yes im storing them completely seperately
+    draw_json: Mapped[bytes]    # no i dont wanna talk about it
 
 # endregion
 
@@ -74,15 +76,19 @@ def moveEmptyToEnd(obj_list: list[tuple[BracketData]] | list[tuple[Deck]]) -> No
 
 
 def databaseEntryToJson(bracket_data: BracketData) -> Bracket:
-    return base64.b64decode(bracket_data.json).decode('utf-8')
+    return base64.b64decode(bracket_data.bracket_json).decode('utf-8')
 
+def databaseEntryToDrawJson(bracket_data: BracketData) -> Bracket:
+    return base64.b64decode(bracket_data.draw_json).decode('utf-8')
 
 def bracketObjectToBytes(bracket_object: Bracket) -> bytes:
     return base64.b64encode(bracket_object.to_json().encode('utf-8'))
 
+def drawObjectToBytes(draw_object: DrawData) -> bytes:
+    return base64.b64encode(draw_object.to_json().encode('utf-8'))
 
 def getBracketNameFromDBEntry(bracket_data: BracketData) -> str:
-    return json_lib.loads(base64.b64decode(bracket_data.json).decode('utf-8'))['name']
+    return json.loads(base64.b64decode(bracket_data.bracket_json).decode('utf-8'))['name']
 
 
 def createEmptyMatchTreeWithGivenDepth(depth: int) -> Bracket:
@@ -101,17 +107,36 @@ def createEmptyMatchTreeWithGivenDepth(depth: int) -> Bracket:
 def index():
     # current display is 480x256 units (1 unit = .125rem = 2px w/ default rem size) [it accepts floats so if you wanna get pixel precise .5s'll getcha there]
 
-    return render_template('index.jinja', vert_lines=[Line(20, 0, 10), Line(30, 0, 20), Line(40, 0, 40), Line(50, 0, 80), Line(60, 0, 160)], hori_lines=[Line(120, 150, 90)])
+    bracket_data = db.session.execute(db.select(BracketData).filter_by(is_active=True)).one()[0]
+    draw = DrawData(databaseEntryToDrawJson(bracket_data))
+    print(draw)
+    bracket = Bracket(databaseEntryToJson(bracket_data))
+    matches = bracket.top.generate_match_list()
+    decks_data = db.session.execute(db.select(Deck).order_by(Deck.name)).all()
+    decks = {deck[0].id: deck[0].image_uri for deck in decks_data}
 
-class Line():
-    x: float
-    y: float
-    size: float
+    
+    # draw.image_size = (60, 60)
+    # draw.add_lines([Line(157.5, 64, 128, True), Line(147.5, 64, 10, False), Line(147.5, 192, 10, False), Line(160, 128, 10, False), # left semis
+    #                 Line(322.5, 64, 132, True), Line(325, 64, 10, False), Line(325, 195, 10, False), Line(312.5, 128, 10, False), # right semis
+    #                 Line(232.5, 128, 17.5, False), Line(240, 72.5, 55.5, True), # final
+    #                 Line(72.5, 30, 65.33, True), Line(62.5, 30, 10, False), Line(62.5, 95.33, 10, False), Line(75, 64, 10, False), # lt quarters
+    #                 Line(72.5, 161.66, 65.33, True), Line(62.5, 161.66, 10, False), Line(62.5, 226, 10, False), Line(75, 192, 10, False), # lb quarters
+    #                 Line(407.5, 30, 65.33, True), Line(410, 30, 10, False), Line(410, 95.33, 10, False), Line(397.5, 64, 10, False), # rt quarters
+    #                 Line(407.5, 161.66, 65.33, True), Line(410, 161.66, 10, False), Line(410, 226, 10, False), Line(397.5, 192, 10, False)]) # rb quarters
+    # draw.images += [BracketImage(210,10), BracketImage(170,98), BracketImage(85,34), BracketImage(0,0), BracketImage(0,65.33), BracketImage(85,162), 
+    #                 BracketImage(0,131.66), BracketImage(0,196), BracketImage(250,98), BracketImage(335,36), BracketImage(420,0), BracketImage(420,65.33), \
+    #                 BracketImage(335,166), BracketImage(420,131.66), BracketImage(420,196)]
 
-    def __init__(self, x: float, y: float, size: float) -> None:
-        self.x = x
-        self.y = y
-        self.size = size
+
+    if (len(matches) != len(draw.images)):
+        raise ValueError("draw data and match data are of different lengths")
+
+    return render_template('index.jinja', matches=matches, draw_data=draw, decks=decks)
+
+
+# https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTqW56asf72CeWy1YpaecZIJxcfMUJ3vyN2Rg&s
+
 
 # build out an editor for making brackets (or at least a code editor with live preview and qol features)
 
@@ -383,21 +408,6 @@ def bracketmaster_create_bracket():
     
     return render_template('bracketmaster/build/template-options.jinja')
 
-    # found_valid_id = False
-    # while not found_valid_id:
-    #     try:
-    #         id = random.randint(0, 4294967295)
-    #         db.get_or_404(BracketData, id)
-            
-    #     except:
-    #         found_valid_id = True
-
-    # bracket = BracketData(id=id, name="New Bracket", is_active=False, json=bracketObjectToBytes(Bracket()))
-    # db.session.add(bracket)
-    # db.session.commit()
-
-    # return redirect(url_for('bracketmaster_manage_brackets'))
-
 
 @app.route("/bracketmaster/delete-bracket")
 @login_required
@@ -431,7 +441,7 @@ def bracketmaster_update_bracket():
     try:
         bracket_obj = Bracket(databaseEntryToJson(bracket))
         bracket_obj.name = unquote(request.args['name'])
-        bracket.json = bracketObjectToBytes(bracket_obj)
+        bracket.bracket_json = bracketObjectToBytes(bracket_obj)
 
         bracket.is_active = 'is_active' in request.args        
         db.session.commit()
@@ -480,7 +490,7 @@ def bracketmaster_declare_winner(id, index, competitor):
     matches = [match for match in bracket.top.generate_match_list() if match.is_ready()]
     bracket.top.override_same_match(matches[index], matches[index].declare_winner(competitor == "left"))
 
-    bracket_data.json = bracketObjectToBytes(bracket)
+    bracket_data.bracket_json = bracketObjectToBytes(bracket)
     db.session.commit()
 
     return redirect(url_for("bracketmaster_manage_active_matches", id=id))
@@ -521,7 +531,7 @@ def bracketmaster_update_competitors(id):
         competitors += [competitor]
 
     bracket.top.update_competitors(competitors)
-    bracket_data.json = bracketObjectToBytes(bracket)
+    bracket_data.bracket_json = bracketObjectToBytes(bracket)
     db.session.commit()
 
     return redirect(url_for("bracketmaster_edit_competitors", id=id))
@@ -546,19 +556,19 @@ def bracketmaster_edit_json_data(id):
     bracket = db.get_or_404(BracketData, id)
 
     if request.method == 'GET':
-        json = json_lib.dumps(json_lib.loads(databaseEntryToJson(bracket)), indent=4)
+        json = json.dumps(json.loads(databaseEntryToJson(bracket)), indent=4)
         return render_template('bracketmaster/edit-json-data.jinja', id=id, name=getBracketNameFromDBEntry(bracket), json=json)
     elif request.method == 'POST':
         try:
-            encoded_json = json_lib.loads(unquote(request.data))["base64"]
+            encoded_json = json.loads(unquote(request.data))["base64"]
             decoded_json = base64.b64decode(encoded_json.encode("utf-8")).decode('utf-8')
-            minified_json = json_lib.dumps(json_lib.loads(decoded_json))
+            minified_json = json.dumps(json.loads(decoded_json))
             print(minified_json)
         except:
             return "json decode error"
         
         try:
-            bracket.json = bracketObjectToBytes(Bracket(minified_json))
+            bracket.bracket_json = bracketObjectToBytes(Bracket(minified_json))
             db.session.commit()
         except:
             return "error pushing to db"
@@ -627,7 +637,7 @@ def bracketmaster_build_single_elim():
             except:
                 found_valid_id = True
 
-        bracket = BracketData(id=id, is_active=False, json=bracketObjectToBytes(b))
+        bracket = BracketData(id=id, is_active=False, bracket_json=bracketObjectToBytes(b), draw_json=drawObjectToBytes(DrawData()))
         db.session.add(bracket)
         db.session.commit()
     except Exception as e:
@@ -657,7 +667,7 @@ def bracketmaster_build_empty():
         b = Bracket()
         b.name = "Empty Bracket"
 
-        bracket = BracketData(id=id, is_active=False, json=bracketObjectToBytes(b))
+        bracket = BracketData(id=id, is_active=False, bracket_json=bracketObjectToBytes(b), draw_json=drawObjectToBytes(DrawData()))
         db.session.add(bracket)
         db.session.commit()
     except Exception as e:
@@ -820,7 +830,10 @@ def admin_build_test_db():
     db.session.add(steven)
 
     # bracket
-    bracket = BracketData(id=8765309, is_active=True, json=bracketObjectToBytes(Bracket('{"name": "Test Bracket", "matches": [{"competitor": -1, "left": 1, "right": 8}, {"competitor": -1, "left": 2, "right": 5}, {"competitor": -1, "left": 3, "right": 4}, {"competitor": {"name": "Cookie A", "owner_id": "335575787509907456", "deck_id": "42"}, "left": -1, "right": -1}, {"competitor": {"name": "Donut D", "owner_id": "971243193750401044", "deck_id": "1234"}, "left": -1, "right": -1}, {"competitor": -1, "left": 6, "right": 7}, {"competitor": {"name": "Donut A", "owner_id": "971243193750401044", "deck_id": "1234"}, "left": -1, "right": -1}, {"competitor": {"name": "Cookie D", "owner_id": "335575787509907456", "deck_id": "42"}, "left": -1, "right": -1}, {"competitor": -1, "left": 9, "right": 12}, {"competitor": -1, "left": 10, "right": 11}, {"competitor": {"name": "Cookie B", "owner_id": "335575787509907456", "deck_id": "42"}, "left": -1, "right": -1}, {"competitor": {"name": "Donut C", "owner_id": "971243193750401044", "deck_id": "1234"}, "left": -1, "right": -1}, {"competitor": -1, "left": 13, "right": 14}, {"competitor": {"name": "Donut B", "owner_id": "971243193750401044", "deck_id": "1234"}, "left": -1, "right": -1}, {"competitor": {"name": "Cookie C", "owner_id": "335575787509907456", "deck_id": "42"}, "left": -1, "right": -1}]}')))
+    bracket = BracketData(id=8765309, 
+                          is_active=True, 
+                          bracket_json=bracketObjectToBytes(Bracket('{"name": "Test Bracket", "matches": [{"competitor": -1, "left": 1, "right": 8}, {"competitor": -1, "left": 2, "right": 5}, {"competitor": -1, "left": 3, "right": 4}, {"competitor": {"name": "Cookie A", "owner_id": "335575787509907456", "deck_id": "42"}, "left": -1, "right": -1}, {"competitor": {"name": "Donut D", "owner_id": "971243193750401044", "deck_id": "1234"}, "left": -1, "right": -1}, {"competitor": -1, "left": 6, "right": 7}, {"competitor": {"name": "Donut A", "owner_id": "971243193750401044", "deck_id": "1234"}, "left": -1, "right": -1}, {"competitor": {"name": "Cookie D", "owner_id": "335575787509907456", "deck_id": "42"}, "left": -1, "right": -1}, {"competitor": -1, "left": 9, "right": 12}, {"competitor": -1, "left": 10, "right": 11}, {"competitor": {"name": "Cookie B", "owner_id": "335575787509907456", "deck_id": "42"}, "left": -1, "right": -1}, {"competitor": {"name": "Donut C", "owner_id": "971243193750401044", "deck_id": "1234"}, "left": -1, "right": -1}, {"competitor": -1, "left": 13, "right": 14}, {"competitor": {"name": "Donut B", "owner_id": "971243193750401044", "deck_id": "1234"}, "left": -1, "right": -1}, {"competitor": {"name": "Cookie C", "owner_id": "335575787509907456", "deck_id": "42"}, "left": -1, "right": -1}]}')),
+                          draw_json=drawObjectToBytes(DrawData('{"image_size": [60, 60], "images": [{"x": 210, "y": 10}, {"x": 170, "y": 98}, {"x": 85, "y": 34}, {"x": 0, "y": 0}, {"x": 0, "y": 65.33}, {"x": 85, "y": 162}, {"x": 0, "y": 131.66}, {"x": 0, "y": 196}, {"x": 250, "y": 98}, {"x": 335, "y": 36}, {"x": 420, "y": 0}, {"x": 420, "y": 65.33}, {"x": 335, "y": 166}, {"x": 420, "y": 131.66}, {"x": 420, "y": 196}], "lines": [{"isVert": true, "size": 128, "x": 157.5, "y": 64}, {"isVert": false, "size": 10, "x": 147.5, "y": 64}, {"isVert": false, "size": 10, "x": 147.5, "y": 192}, {"isVert": false, "size": 10, "x": 160, "y": 128}, {"isVert": true, "size": 132, "x": 322.5, "y": 64}, {"isVert": false, "size": 10, "x": 325, "y": 64}, {"isVert": false, "size": 10, "x": 325, "y": 195}, {"isVert": false, "size": 10, "x": 312.5, "y": 128}, {"isVert": false, "size": 17.5, "x": 232.5, "y": 128}, {"isVert": true, "size": 55.5, "x": 240, "y": 72.5}, {"isVert": true, "size": 65.33, "x": 72.5, "y": 30}, {"isVert": false, "size": 10, "x": 62.5, "y": 30}, {"isVert": false, "size": 10, "x": 62.5, "y": 95.33}, {"isVert": false, "size": 10, "x": 75, "y": 64}, {"isVert": true, "size": 65.33, "x": 72.5, "y": 161.66}, {"isVert": false, "size": 10, "x": 62.5, "y": 161.66}, {"isVert": false, "size": 10, "x": 62.5, "y": 226}, {"isVert": false, "size": 10, "x": 75, "y": 192}, {"isVert": true, "size": 65.33, "x": 407.5, "y": 30}, {"isVert": false, "size": 10, "x": 410, "y": 30}, {"isVert": false, "size": 10, "x": 410, "y": 95.33}, {"isVert": false, "size": 10, "x": 397.5, "y": 64}, {"isVert": true, "size": 65.33, "x": 407.5, "y": 161.66}, {"isVert": false, "size": 10, "x": 410, "y": 161.66}, {"isVert": false, "size": 10, "x": 410, "y": 226}, {"isVert": false, "size": 10, "x": 397.5, "y": 192}]}')))
     db.session.add(bracket)
 
     db.session.commit()

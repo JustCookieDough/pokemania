@@ -51,8 +51,8 @@ class Bracket:
         else:
             comp = Competitor()
             comp.name = data[i]["competitor"]["name"]
-            comp.owner_id = data[i]["competitor"]["owner_id"]
-            comp.deck_id = data[i]["competitor"]["deck_id"]
+            comp.owner_id = int(data[i]["competitor"]["owner_id"])
+            comp.deck_id = int(data[i]["competitor"]["deck_id"])
             
         m.competitor = comp
         m.left = None if data[i]["left"] == -1 else self.build_matches_from_json_data(data, data[i]["left"])
@@ -175,6 +175,7 @@ def test_from():
     out = b.to_json()
     print(out)
     print(out == json_string)
+
 
 
 if __name__ == "__main__":
