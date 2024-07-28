@@ -135,13 +135,15 @@ def index():
         matches = bracket.top.generate_match_list()
         decks_data = db.session.execute(db.select(Deck).order_by(Deck.name)).all()
         decks = {deck[0].id: deck[0].image_uri for deck in decks_data}
+
+        if (len(matches) != len(draw.images)):
+            bracket_error_text = "There was an error drawing the bracket."
+            return render_template('index.jinja', matches=matches, draw_data=draw, decks=decks, name=name, error=bracket_error_text)
     except:
         bracket_error_text = "There was an error fetching data."
+        return render_template('index.jinja', matches=[], draw_data=[], decks=[], name=[], error=bracket_error_text)
 
-    if (len(matches) != len(draw.images)):
-        bracket_error_text = "There was an error drawing the bracket."
-
-    return render_template('index.jinja', matches=matches, draw_data=draw, decks=decks, name=name, error=bracket_error_text)
+    
 
 @app.route("/bets")
 @login_required
