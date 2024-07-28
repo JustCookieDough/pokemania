@@ -172,48 +172,12 @@ def bracket():
     except:
         return render_template('brackets/no-active-brackets.jinja')
     
-    # draw = DrawData(database_entry_to_draw_json(bracket_data))
+    draw = DrawData(database_entry_to_draw_json(bracket_data))
     bracket = Bracket(database_entry_to_bracket_json(bracket_data))
     name = bracket.name
     matches = bracket.top.generate_match_list()
     decks_data = db.session.execute(db.select(Deck).order_by(Deck.name)).all()
     decks = {deck[0].id: deck[0].image_uri for deck in decks_data}
-
-    draw = DrawData()
-    draw.image_size = (40, 30)
-    draw.add_lines([ \
-        Line(220, 128, 40, False), Line(240, 62, 66, True),                                                             # final -> winner!
-        Line(170, 64, 128, True), Line(160, 64, 10, False), Line(160, 192, 10, False), Line(170, 128, 10, False),       #l semis -> final
-        Line(310, 64, 128, True), Line(310, 64, 10, False), Line(310, 192, 10, False), Line(300, 128, 10, False),       #r semis -> final
-        Line(110, 31, 64, True), Line(100, 31, 10, False), Line(100, 95, 10, False), Line(110, 63, 10, False),          #ul quarters -> semis
-        Line(110, 160, 64, True), Line(100, 160, 10, False), Line(100, 226, 10, False), Line(110, 192, 10, False),      #ll quarters ->semis
-        Line(370, 31, 64, True), Line(370, 31, 10, False), Line(370, 95, 10, False), Line(360, 63, 10, False),          #ul quarters ->semis
-        Line(370, 160, 64, True), Line(370, 160, 10, False), Line(370, 226, 10, False), Line(360, 192, 10, False),      #ll quarters ->semis
-        Line(50, 15, 32, True), Line(40, 15, 10, False), Line(40, 47, 10, False), Line(50, 31, 10, False),              #uul 16s -> quarters
-        Line(50, 79, 32, True), Line(40, 79, 10, False), Line(40, 111, 10, False), Line(50, 95, 10, False),             #lul 16s -> quarters
-        Line(50, 145, 32, True), Line(40, 145, 10, False), Line(40, 177, 10, False), Line(50, 161, 10, False),          #ull 16s -> quarters
-        Line(50, 209, 32, True), Line(40, 209, 10, False), Line(40, 241, 10, False), Line(50, 225, 10, False),          #lll 16s -> quarters
-        Line(430, 15, 32, True), Line(430, 15, 10, False), Line(430, 47, 10, False), Line(420, 31, 10, False),          #uur 16s -> quarters
-        Line(430, 79, 32, True), Line(430, 79, 10, False), Line(430, 111, 10, False), Line(420, 95, 10, False),         #lur 16s -> quarters
-        Line(430, 145, 32, True), Line(430, 145, 10, False), Line(430, 177, 10, False), Line(420, 161, 10, False),      #ulr 16s -> quarters
-        Line(430, 209, 32, True), Line(430, 209, 10, False), Line(430, 241, 10, False), Line(420, 225, 10, False),      #llr 16s -> quarters
-        ])
-
-
-
-
-
-
-
-    draw.images += [BracketImage(220,32), BracketImage(180,113), BracketImage(120, 48), BracketImage(60, 16), 
-                    BracketImage(0, 0), BracketImage(0, 32), BracketImage(60, 80), BracketImage(0, 64), 
-                    BracketImage(0, 96), BracketImage(120, 178), BracketImage(60, 146), BracketImage(0, 130), 
-                    BracketImage(0, 162), BracketImage(60, 210), BracketImage(0, 194), BracketImage(0, 226), 
-                    BracketImage(260, 113), BracketImage(320, 48), BracketImage(380, 16), BracketImage(440, 0), 
-                    BracketImage(440, 32), BracketImage(380, 80), BracketImage(440, 64), BracketImage(440, 96), 
-                    BracketImage(320, 178), BracketImage(380, 146), BracketImage(440, 130), BracketImage(440, 162), 
-                    BracketImage(380, 210), BracketImage(440, 194), BracketImage(440, 226)]
-    print(draw.to_json())
 
     if (len(matches) != len(draw.images)):
         flash('number of image slots in draw data different to number of matches in bracket data')

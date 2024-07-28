@@ -8,7 +8,7 @@
     <div class="dev-panel-row bold">
         <span class="dev-panel-col-wide">Name</span>
         <span class="dev-panel-col-skinny">Active?</span>
-        <span class="dev-panel-col-skinny">Visible?</span>
+        {# <span class="dev-panel-col-skinny">Visible?</span> #}
         <span class="dev-panel-col-medium">ID</span>
         <span class="dev-panel-col-skinny text-align-center">Edit</span>
         <span class="dev-panel-col-skinny text-align-center">Update</span>
@@ -20,7 +20,7 @@
     <form action="{{ url_for('bracketmaster_update_bracket') }}" method="get"><div class="dev-panel-row">
         <span class="dev-panel-col-wide"><input type="text" name="name" id="name-input-{{bracket[0].id}}" value="{{ names[loop.index0] }}"></span>
         <span class="dev-panel-col-skinny"><input type="checkbox" name="is_active" {{ "checked" if bracket[0].is_active }}></span>
-        <span class="dev-panel-col-skinny"><input type="checkbox" name="is_visible" {{ "checked" if bracket[0].is_visible }}></span>
+        {# <span class="dev-panel-col-skinny"><input type="checkbox" name="is_visible" {{ "checked" if bracket[0].is_visible }}></span> #}
         <span class="dev-panel-col-medium">{{ bracket[0].id }}</span><input name="id" type="hidden" value="{{ bracket[0].id }}">
         <span class="dev-panel-col-skinny"><a class="anchor-button-icon" href="{{ url_for('bracketmaster_edit_bracket', id=bracket[0].id)}}"><i class="fa-solid fa-pencil"></i></a></span>
         <span class="dev-panel-col-skinny"><a class="anchor-button-icon" onclick="document.getElementById('update-submit-{{bracket[0].id}}').click()"><i class="fa-solid fa-pen-to-square" style="margin-right:.3rem;"></i></a><input type="submit" class="hidden" id="update-submit-{{bracket[0].id}}"></span>
