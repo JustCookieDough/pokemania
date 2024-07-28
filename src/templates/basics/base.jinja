@@ -33,7 +33,7 @@
             {% if current_user.is_anonymous%}<a class="nav-link nav-hoverable" href="{{ url_for('login') }}">Log In</a>
             {% else %}
             <a class="nav-link nav-hoverable" href="{{ url_for('profile') }}">Profile</a>
-            {% if current_user.is_admin %}<a class="nav-link nav-hoverable" href="{{ url_for('bracketmaster') }}">Bracketmaster</a>{% endif %}
+            {% if current_user.is_bracketmaster %}<a class="nav-link nav-hoverable" href="{{ url_for('bracketmaster') }}">Bracketmaster</a>{% endif %}
             {% if current_user.is_admin %}<a class="nav-link nav-hoverable" href="{{ url_for('admin') }}">Admin</a>{% endif %}
             {% endif %}
         </div>
