@@ -9,7 +9,7 @@ from urllib.parse import urlencode, unquote
 from typing import Optional
 import requests, secrets, random, base64, os, math, json, click, re, validators
 
-from settings import DISCORD_OAUTH2_PROVIDER_INFO, FLASK_SECRET, PRESETS
+from settings import DISCORD_OAUTH2_PROVIDER_INFO, FLASK_SECRET, PRESETS, HOST, PORT
 from bracket import Bracket, Competitor, Match
 from draw import DrawData, Line, BracketImage
 
@@ -128,12 +128,15 @@ def index():
     except:
         bracket_error_text = "There are no active brackets."
 
-    draw = DrawData(database_entry_to_draw_json(bracket_data))
-    bracket = Bracket(database_entry_to_bracket_json(bracket_data))
-    name = bracket.name
-    matches = bracket.top.generate_match_list()
-    decks_data = db.session.execute(db.select(Deck).order_by(Deck.name)).all()
-    decks = {deck[0].id: deck[0].image_uri for deck in decks_data}
+    try:
+        draw = DrawData(database_entry_to_draw_json(bracket_data))
+        bracket = Bracket(database_entry_to_bracket_json(bracket_data))
+        name = bracket.name
+        matches = bracket.top.generate_match_list()
+        decks_data = db.session.execute(db.select(Deck).order_by(Deck.name)).all()
+        decks = {deck[0].id: deck[0].image_uri for deck in decks_data}
+    except:
+        bracket_error_text = "There was an error fetching data."
 
     if (len(matches) != len(draw.images)):
         bracket_error_text = "There was an error drawing the bracket."
@@ -969,4 +972,4 @@ if __name__ == "__main__":
         os.chdir("/".join(__file__.split("/")[:-1]))
         print(f"new cwd is {os.getcwd()}")
 
-    app.run(debug=True, port=5678)
+    app.run(host=HOST, port=PORT)
