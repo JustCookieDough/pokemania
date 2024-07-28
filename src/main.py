@@ -13,7 +13,7 @@ from settings import DISCORD_OAUTH2_PROVIDER_INFO, FLASK_SECRET, PRESETS, HOST, 
 from bracket import Bracket, Competitor, Match
 from draw import DrawData, Line, BracketImage
 
-app = Flask("__name__")
+app = Flask(__name__)
 
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///project.db"
 app.config["SECRET_KEY"] = FLASK_SECRET
@@ -943,21 +943,6 @@ def admin_build_test_db():
     flash('done!')
     return redirect(url_for('admin'))
 
-
-# endregion
-
-# region Dev
-
-@app.route("/give_admin")
-def give_admin():
-    for id in ADMIN_IDS:
-        user = db.session.scalar(db.select(User).where(User.id == id))
-        if user:
-            user.is_admin = True
-            user.is_bracketmaster = True
-            db.session.commit()
-
-    return redirect(url_for("admin"))
 
 # endregion
 
