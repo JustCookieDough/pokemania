@@ -139,6 +139,8 @@ def index():
         if (len(matches) != len(draw.images)):
             bracket_error_text = "There was an error drawing the bracket."
             return render_template('index.jinja', matches=matches, draw_data=draw, decks=decks, name=name, error=bracket_error_text)
+        
+        return render_template('index.jinja', matches=matches, draw_data=draw, decks=decks, name=name, error=bracket_error_text)
     except:
         bracket_error_text = "There was an error fetching data."
         return render_template('index.jinja', matches=[], draw_data=[], decks=[], name=[], error=bracket_error_text)
