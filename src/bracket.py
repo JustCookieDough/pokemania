@@ -1,7 +1,6 @@
 from __future__ import annotations
 from typing import Optional, Any
 import json
-from pprint import pprint
 
 class Bracket:
     name: str
@@ -23,7 +22,7 @@ class Bracket:
         matches_index_dict = {in_matches_list[i]: i for i in range(len(in_matches_list))}
         
         for match in in_matches_list:
-            competitor = {"name": match.competitor.name, "owner_id": match.competitor.owner_id, "deck_id": match.competitor.deck_id} if match.competitor else -1
+            competitor = {"name": match.competitor.name, "owner_id": match.competitor.owner_id, "deck_id": match.competitor.deck_id, "defeated": match.competitor.defeated} if match.competitor else -1
             out_matches_list += [{"competitor": competitor, 
                                   "left": matches_index_dict[match.left] if match.left else -1,
                                   "right": matches_index_dict[match.right]if match.right else -1}]
@@ -53,6 +52,7 @@ class Bracket:
             comp.name = data[i]["competitor"]["name"]
             comp.owner_id = int(data[i]["competitor"]["owner_id"])
             comp.deck_id = int(data[i]["competitor"]["deck_id"])
+            comp.defeated = data[i]["competitor"]["defeated"]
             
         m.competitor = comp
         m.left = None if data[i]["left"] == -1 else self.build_matches_from_json_data(data, data[i]["left"])
@@ -81,9 +81,11 @@ class Match:
         if leftIsWinner:
             self.competitor = self.left.competitor
             self.left.competitor = None
+            self.right.competitor.defeated = True
         else:
             self.competitor = self.right.competitor
             self.right.competitor = None
+            self.left.competitor.defeated = True
 
     # this is icky but not enough for me to care
     def generate_match_list(self) -> list[Match]:
@@ -126,6 +128,7 @@ class Competitor:
     name: str
     owner_id: int
     deck_id: int
+    defeated: bool
 
     def __str__(self):
         return f'Competitor ~ name: "{self.name}", owner: {self.owner_id}, deck: {self.deck_id};'

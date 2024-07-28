@@ -1,0 +1,11 @@
+{% extends 'basics/base.jinja' %}
+
+{% set has_flash = True %}
+
+{% block content %}
+<h1>Draw Data Presets</h1>
+<a class="anchor-button-wide" href="{{ url_for('bracketmaster_load_preset_draw_data', id=id, preset='8-single-elim') }}">8-deck Single Elim</a>
+<a class="anchor-button-wide" href="{{ url_for('bracketmaster_load_preset_draw_data', id=id, preset='16-single-elim') }}">16-deck Single Elim</a>
+<div class="divider" style="width:100%"></div>
+<a class="anchor-button-wide" href="{{ url_for('bracketmaster_edit_bracket', id=id) }}">Back</a>
+{% endblock %}

@@ -1,9 +1,9 @@
 {% extends "basics/base.jinja" %}
 
-{% set has_mini_nav, not_screen_centered, not_squid_bg, is_unboxed = False, False, False, False %} {# technically optional, just to demonstate what state variables can be changed #}
+{% set has_mini_nav = True %}
 
 {% block content %}
 <t>i beefed it. this error's on me (probably) (unless ur doing something weird) (which, dont? ig?)</t>
 <t>error code: {{ code }}. idk what it means. google it or whatever.</t>
-<a href="/" class="funky-button"><p>go home</p></a>
+<a href="/" class="anchor-button-funky"><p>go home</p></a>
 {% endblock content %}

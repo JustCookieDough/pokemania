@@ -24,13 +24,13 @@
     {% block nav %}
     <div class="navbar{{' mini-nav' if has_mini_nav}}">
         <div class="nav-left">
-            <a class="nav-link nav-hoverable" href="{{ url_for('index') }}">Home</a>
-            <a class="nav-link nav-hoverable" href="{{ url_for('bets') }}">Bets</a>
+            <a class="nav-link nav-hoverable" href="{{ url_for('bracket') }}">Bracket</a>
+            {# <a class="nav-link nav-hoverable" href="{{ url_for('bets') }}">Bets</a> #}
             <a class="nav-link nav-hoverable" href="{{ url_for('leaderboard') }}">Leaderboard</a>
         </div>
         <a class="home-anchor nav-hoverable" href="{{ url_for('index') }}"><i class="fa-solid fa-squid"></i></a>
         <div class="nav-right">
-            {% if current_user.is_anonymous%}<a class="nav-link nav-hoverable" href="{{ url_for('login') }}">Sign In</a>
+            {% if current_user.is_anonymous%}<a class="nav-link nav-hoverable" href="{{ url_for('login') }}">Log In</a>
             {% else %}
             <a class="nav-link nav-hoverable" href="{{ url_for('profile') }}">Profile</a>
             {% if current_user.is_admin %}<a class="nav-link nav-hoverable" href="{{ url_for('bracketmaster') }}">Bracketmaster</a>{% endif %}
@@ -62,5 +62,5 @@
     {% if not not_squid_bg %}<div class="squid-bg"></div><div class="squid-bg-grad"></div>{% endif %}
     
     {% block scripts %}{% endblock %}
-    </body>
+</body>
 </html>

@@ -1,9 +1,9 @@
 {% extends "basics/base.jinja" %}
 
-{% set has_mini_nav, not_screen_centered, not_squid_bg, is_unboxed = False, False, False, False %} {# technically optional, just to demonstate what state variables can be changed #}
+{% set has_mini_nav = True %}
 
 {% block content %}
 <t>here there be dragons!</t>
 <t>404 baybee, this page doesnt exist</t>
-<a href="{{ url_for('index') }}" class="funky-button">go home</a>
+<a href="{{ url_for('index') }}" class="anchor-button-funky">go home</a>
 {% endblock content %}

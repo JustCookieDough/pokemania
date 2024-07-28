@@ -1,7 +1,7 @@
 {% extends "basics/base.jinja" %}
 
 {% block content %}
-<h1>{{ name }} JSON Data</h1>
+<h1>{{ name }} {{ data_type.capitalize() }} Data</h1>
 <textarea class="scrollable" id="text" rows="24" cols="80">{{ json }}</textarea>
 <div class="dev-panel-row">
     <span class="dev-panel-col-skinny"><a class="anchor-button-icon" href="{{ url_for('bracketmaster_edit_bracket', id=id) }}"><i class="fa-solid fa-arrow-left"></i></a></span>
@@ -17,7 +17,7 @@ const text = document.getElementById("text");
 const responseOut = document.getElementById("response");
 
 update.addEventListener('click', async () => {
-    var response = await fetch("{{ url_for('bracketmaster_edit_json_data', id=id) }}", {
+    var response = await fetch("{{ url_for('bracketmaster_edit_json_data', id=id, data_type=data_type) }}", {
     method: 'POST',
     headers: {
       'Accept': 'application/json',

@@ -1,6 +1,6 @@
 {% extends "basics/base.jinja" %}
 
-{% set has_mini_nav, not_screen_centered, not_squid_bg, is_unboxed = False, False, False, False %} {# technically optional, just to demonstate what state variables can be changed #}
+{% set has_flash = True %}
 
 {% block content %}
 <h1>{{ name }}</h1>
@@ -8,7 +8,11 @@
 {# <a class="anchor-button-wide" href="{{ url_for('bracketmaster_manage_bets', id=id) }}">Manage Bets</a> #} {# think this should go in the manage active matches win #}
 <a class="anchor-button-wide" href="{{ url_for('bracketmaster_edit_competitors', id=id) }}">Edit Competitors</a>
 {# <a class="anchor-button-wide" href="{{ url_for('bracketmaster_build_bracket', id=id) }}">Build Bracket</a> #} {# not implimented #}
-<a class="anchor-button-wide" href="{{ url_for('bracketmaster_edit_json_data', id=id)}}">Edit JSON Data</a>
+<a class="anchor-button-wide" href="{{ url_for('bracketmaster_edit_json_data', id=id, data_type='bracket')}}">Edit Bracket JSON Data</a>
+<div class="divider" style="width:100%"></div>
+
+<a class="anchor-button-wide" href="{{ url_for('bracketmaster_preset_draw_data', id=id) }}">Load Draw Data Preset</a>
+<a class="anchor-button-wide" href="{{ url_for('bracketmaster_edit_json_data', id=id, data_type='draw')}}">Edit Draw JSON Data</a>
 <div class="divider" style="width:100%"></div>
 <a class="anchor-button-wide" href="{{ url_for('bracketmaster_manage_brackets') }}">Back</a>
 {% endblock content %}

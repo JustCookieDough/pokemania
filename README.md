@@ -6,7 +6,7 @@ also because im bad at svelte and vue and dont know react or angular lol.
 - ~~Logins via OAuth2 through discord (gonna be fucking annoying)~~
 - ~~Profile Setup~~
 - ~~Bracket Data Structure~~
-- Bracket Display
+- ~~Bracket Display~~
 - ~~Leaderboards (see ideas for what they'll look like)~~
 - Betting Baybeeee (lets go gambling!)
 - ~~Admin Panel~~

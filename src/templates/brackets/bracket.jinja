@@ -1,0 +1,29 @@
+{% extends "basics/base.jinja" %}
+
+{% set has_mini_nav, not_screen_centered, not_squid_bg, is_unboxed = False, False, False, False %} {# technically optional, just to demonstate what state variables can be changed #}
+
+{% block content %}
+<h1>{{ name }}</h1>
+<div class="divider bracket-divider"></div>
+<div class="bracket-box">
+    {% for line in draw_data.lines %}
+        {% if line.isVert %}
+            <div class="bracket-vert-line" style="left:{{ line.x/8 }}rem;top:{{ line.y/8 }}rem;height:{{ line.size/8 }}rem;"></div>  {# dividing by 8 to make nicer unit sizes #}
+        {% else %}
+            <div class="bracket-hori-line" style="left:{{ line.x/8 }}rem;top:{{ line.y/8 }}rem;width:{{ line.size/8 }}rem;"></div>  {# dividing by 8 to make nicer unit sizes #}
+        {% endif %}
+    {% endfor %}
+    {% for image in draw_data.images %}
+        <div class="bracket-image-container" style="left:{{ image.x/8 }}rem;top:{{ image.y/8 }}rem;width:{{ draw_data.image_size[0]/8 }}rem;height:{{ draw_data.image_size[1]/8 }}rem;">
+            {% if matches[loop.index0].competitor %}
+                <div class="bracket-image-outline">
+                    <img class="bracket-image {% if matches[loop.index0].competitor.defeated %}defeated{% endif %}" src="{{ decks[matches[loop.index0].competitor.deck_id] }}">
+                </div>
+            {% else %}
+                <div class="bracket-image-outline"></div>
+            {% endif %}
+        </div>
+    {% endfor %}
+</div>
+{% endblock content %}
+{# https://sadielew.com/cdn/shop/products/ACNH_TomNook-1.jpg?v=1582660685&width=1946 #}

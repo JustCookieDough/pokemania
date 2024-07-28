@@ -16,14 +16,15 @@
     <span class="dev-panel-col-wide"><input type="text" name="{{ loop.index0 }}-name" placeholder="Deck Name" value="{{ competitor.name }}"></span>
     <span class="dev-panel-col-wide"><select name="{{ loop.index0 }}-owner">
     {% for owner in owners %}
-        <option value="{{owner[0].id}}" {{'selected' if owner[0].id|string == competitor.owner_id else ''}}>{{owner[0].username}}</option>
+        <option value="{{owner[0].id}}" {{'selected' if owner[0].id == competitor.owner_id else ''}}>{{owner[0].username}}</option>
     {% endfor %}
     </select></span>
     <span class="dev-panel-col-wide"><select name="{{ loop.index0 }}-deck">
     {% for deck in decks %}
-        <option value="{{deck[0].id}}" {{'selected' if deck[0].id|string == competitor.deck_id else ''}}>{{deck[0].name}}</option>
+        <option value="{{deck[0].id}}" {{'selected' if deck[0].id == competitor.deck_id else ''}}>{{deck[0].name}}</option>
     {% endfor %}
     </select></span>
+    <input type="hidden" name="{{ loop.index0 }}-defeated" value="{{ competitor.defeated }}">
 </div>
 {% endfor %}
 <input type="submit" class="hidden" id="submit">

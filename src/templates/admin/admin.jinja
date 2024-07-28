@@ -5,17 +5,22 @@
 {% block content %}
 <h1>Admin</h1>
 <a class="anchor-button-wide" href=" {{ url_for('admin_manage_users') }} ">Manage Users</a>
-
-{# why do we even have that lever??! #}
-{# <a class="anchor-button-wide" href=" {{ url_for('admin_nuke_table', table='users') }} ">Nuke User Table</a>
-<a class="anchor-button-wide" href=" {{ url_for('admin_nuke_all_tables') }} ">Nuke All Tables</a> #}
-
-<a class="anchor-button-wide" href=" {{ url_for('admin_build_test_db') }} ">Nuke and Build Test DB</a>
 <a class="anchor-button-wide" href=" {{ url_for('admin_test') }} ">Test Endpoint</a>
 
-{# <a class="anchor-button-wide" href=" {{ url_for('admin_test_user_panel_flash') }} ">Test User Panel Flash</a>
-<a class="anchor-button-wide" href=" {{ url_for('admin_test_landing_flash') }} ">Test Admin Panel Flash</a> #}
 
+{% if show_dangerous %}
+<div class="divider" style="width:100%;"></div>
+{# why do we even have that lever??! #}
+<a class="anchor-button-wide" href=" {{ url_for('admin_build_test_db') }} ">Nuke and Build Test DB</a>
+<a class="anchor-button-wide" href=" {{ url_for('admin_nuke_table', table='users') }} ">Nuke User Table</a>
+<a class="anchor-button-wide" href=" {{ url_for('admin_nuke_all_tables') }} ">Nuke All Tables</a>
+{% else %}
+<a class="anchor-button-wide" href=" {{ url_for('admin', show_dangerous=True) }} ">Show Dangerous Options</a>
+{% endif %}
+
+{# <a class="anchor-button-wide" href=" {{ url_for('admin_test_user_panel_flash') }} ">Test User Panel Flash</a> #}
+{# <a class="anchor-button-wide" href=" {{ url_for('admin_test_landing_flash') }} ">Test Admin Panel Flash</a> #}
+<div class="divider" style="width:100%;"></div>
 <a class="anchor-button-icon" href="{{ url_for('index') }}"><i class="fa-solid fa-arrow-left"></i></a>
 
 {% endblock content %}

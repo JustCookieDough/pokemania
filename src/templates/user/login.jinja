@@ -3,7 +3,7 @@
 {% set has_mini_nav, not_screen_centered, bot_squid_bg, skipDataDisclosure, is_unboxed = True, False, False, False, False %}
 
 {% block content %}
-<h1>Sign In</h1>
+<h1>Log In</h1>
 <div class="data-disclosure {{'hidden' if skipDataDisclosure}}">
 <h3>What Data Are We Using?</h3>
 <ul>
@@ -15,5 +15,5 @@
 to keep no important data, namely passwords, on our servers.</p>
 </div>
 <div class="divider {{'hidden' if not skipDataDisclosure}}"></div>
-<a class="funky-button" href="{{ url_for('authorize') }}"><i class="fa-brands fa-discord"></i><p>Sign In with Discord</p></a>
+<a class="anchor-button-funky" href="{{ url_for('authorize') }}"><i class="fa-brands fa-discord"></i><p>Log In with Discord</p></a>
 {% endblock content %}

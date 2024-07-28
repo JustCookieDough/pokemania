@@ -3,8 +3,7 @@ from typing import Optional, Any
 import json
 
 class DrawData():
-    image_size: tuple[float, float] = (60, 40)
-
+    image_size: tuple[float, float]
     lines: list[Line]
     images: list[BracketImage]
 
@@ -12,6 +11,7 @@ class DrawData():
         if json:
             self.from_json(json)
         else:
+            self.image_size=(0,0)
             self.lines = []
             self.images = []
     

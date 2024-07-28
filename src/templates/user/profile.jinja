@@ -16,8 +16,8 @@
         <div class="profile-input-row"><h3>Email</h3><input type="text" name="email" value="{{ '' if current_user.email == None else current_user.email }}" placeholder="ash.ketchum@oaklabs.org"></div>
         <div class="profile-input-row"><h3>Avatar URI</h3><input type="text" name="avatar" value="{{ current_user.avatar }}"></div>
         <div class="profile-button-row">
-        <a class="funky-button" href="{{ url_for('logout') }}"><i class="fa-solid fa-right-from-bracket"></i>Log Out</a>
-        <a class="funky-button" id="update-settings-anchor"><i class="fa-solid fa-sliders"></i>Update Settings</a>
+        <a class="anchor-button-funky" href="{{ url_for('logout') }}"><i class="fa-solid fa-right-from-bracket"></i>Log Out</a>
+        <a class="anchor-button-funky" id="update-settings-anchor"><i class="fa-solid fa-sliders"></i>Update Settings</a>
         <input class="hidden" type="submit" id="update-form-submit">
     </div>
     </form>
