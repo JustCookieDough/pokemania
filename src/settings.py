@@ -29,3 +29,4 @@ PRESETS = {
 
 HOST = config('HOST')
 PORT = config('PORT')
+DEBUG = config('DEBUG')

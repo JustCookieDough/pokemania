@@ -103,7 +103,7 @@ class Match:
                 self.right.override_same_match(old_match, new_match)
 
     def generate_competitor_list(self) -> list[Competitor]:
-        return [self.competitor] if self.competitor else [] + \
+        return ([self.competitor] if self.competitor else []) + \
                 (self.left.generate_competitor_list() if self.left else []) + \
                 (self.right.generate_competitor_list() if self.right else [])
     

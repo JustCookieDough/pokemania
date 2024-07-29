@@ -7,6 +7,7 @@
     <span class="dev-panel-col-wide">Name</span>
     <span class="dev-panel-col-wide">Owner</span>
     <span class="dev-panel-col-wide">Deck</span>
+    <span class="dev-panel-col-skinny">KO?</span>
     <div id="padding"></div>
 </div>
 <div class="divider" style="width: 100%;"></div>
@@ -24,7 +25,7 @@
         <option value="{{deck[0].id}}" {{'selected' if deck[0].id == competitor.deck_id else ''}}>{{deck[0].name}}</option>
     {% endfor %}
     </select></span>
-    <input type="hidden" name="{{ loop.index0 }}-defeated" value="{{ competitor.defeated }}">
+    <input type="checkbox" name="{{ loop.index0 }}-defeated" {{ "checked" if competitor.defeated else "" }}>
 </div>
 {% endfor %}
 <input type="submit" class="hidden" id="submit">

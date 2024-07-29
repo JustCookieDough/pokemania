@@ -9,7 +9,7 @@ from urllib.parse import urlencode, unquote
 from typing import Optional
 import requests, secrets, random, base64, os, math, json, click, re, validators
 
-from settings import DISCORD_OAUTH2_PROVIDER_INFO, FLASK_SECRET, PRESETS, HOST, PORT
+from settings import DISCORD_OAUTH2_PROVIDER_INFO, FLASK_SECRET, PRESETS, HOST, PORT, DEBUG
 from bracket import Bracket, Competitor, Match
 from draw import DrawData, Line, BracketImage
 
@@ -582,7 +582,7 @@ def bracketmaster_update_competitors(id):
         competitor.name = request.args[f"{i}-name"] 
         competitor.owner_id = request.args[f"{i}-owner"] 
         competitor.deck_id = request.args[f"{i}-deck"]
-        competitor.defeated = bool(request.args[f"{i}-defeated"])
+        competitor.defeated = f"{i}-defeated" in request.args
         competitors += [competitor]
 
     bracket.top.update_competitors(competitors)
@@ -961,4 +961,4 @@ if __name__ == "__main__":
         os.chdir("/".join(__file__.split("/")[:-1]))
         print(f"new cwd is {os.getcwd()}")
 
-    app.run(host=HOST, port=PORT)
+    app.run(host=HOST, port=PORT, debug=DEBUG)
