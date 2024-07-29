@@ -110,8 +110,9 @@ class Match:
     def update_competitors(self, competitors: list[Competitor]) -> None:
         if self.competitor:
             self.competitor = competitors.pop(0)
-        else:
+        if self.left.competitor:
             self.left.update_competitors(competitors)
+        if self.right.competitor:
             self.right.update_competitors(competitors)
 
     # def __eq__(self, value: object) -> bool:
