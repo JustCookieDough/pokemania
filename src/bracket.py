@@ -3,6 +3,12 @@ from typing import Optional, Any
 import json
 
 class Bracket:
+    '''
+    bracket class. stores bracket data
+
+    name: str - bracket name
+    top: Match - top node of match tree
+    '''
     name: str
     top: Match
 
@@ -16,6 +22,9 @@ class Bracket:
 
 
     def to_json(self) -> str:
+        '''
+        converts bracket data to json and returns it as a string.
+        '''
         in_matches_list = self.top.generate_match_list()
         out_matches_list = []
 
@@ -36,6 +45,9 @@ class Bracket:
     
 
     def from_json(self, json_string: str) -> None:
+        '''
+        parses json_string and converts it into Bracket object
+        '''
         data = json.loads(json_string)
 
         self.name = data["name"]
@@ -43,6 +55,9 @@ class Bracket:
 
 
     def build_matches_from_json_data(self, data: list[dict[str, Any]], i: int = 0) -> Match:
+        '''
+        recursively creates match tree from json data
+        '''
         m = Match()
         
         if data[i]["competitor"] == -1:
@@ -61,6 +76,7 @@ class Bracket:
         return m
 
 
+# TODO: add docstrings, refactor, rewrite the grossest functions
 class Match:
     competitor: Optional[Competitor]
     left: Optional[Match]
@@ -114,18 +130,15 @@ class Match:
             self.left.update_competitors(competitors)
         if self.right:
             self.right.update_competitors(competitors)
-
-    # def __eq__(self, value: object) -> bool:
-    #     if not isinstance(value, Match):
-    #         return False
-        
-    #     return self.competitor == value.competitor and self.left == value.left and self.right == value.right
     
     def __str__(self) -> str:
         return f"Match ~ Competitor:{str(self.competitor)}\nLeft -- {str(self.left)}\nRight -- {str(self.right)}"
 
 
 class Competitor:
+    '''
+    competitor data class. could be a @dataclass but whatevs.
+    '''
     name: str
     owner_id: int
     deck_id: int
@@ -141,7 +154,7 @@ class Competitor:
         return self.name == value.name and self.owner_id == value.owner_id and self.deck_id == value.deck_id
 
 
-
+# region Testing
 
 def test_to():
     b = Bracket()
@@ -181,7 +194,8 @@ def test_from():
     print(out == json_string)
 
 
-
 if __name__ == "__main__":
     test_to()
     test_from()
+
+# endregion
