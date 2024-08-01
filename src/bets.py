@@ -37,7 +37,6 @@ class Bets:
             bet.from_json(obj['data'])
             self.bets += [bet]
 
-        
 
 class Bet:
     '''
@@ -145,6 +144,7 @@ class Moneyline(Bet):
         comp.defeated = d_winner['defeated']
         self.desired_winner = comp
 
+ 
 # region Testing
 
 # i'll write actual tests with like assert statements and shiz l8r.
