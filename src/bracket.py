@@ -76,8 +76,8 @@ class Bracket:
         return m
 
 
-# TODO: add docstrings, refactor, rewrite the grossest functions
 class Match:
+    # TODO: add docstrings, refactor, rewrite the grossest functions
     competitor: Optional[Competitor]
     left: Optional[Match]
     right: Optional[Match]

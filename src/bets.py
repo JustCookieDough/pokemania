@@ -9,20 +9,15 @@ class Bets:
     bets: list[Bets]
 
     # this function is currently storing json strings as values in json objects
-    # is this bad? yeah. but its functional and it makes more sense to store strings anyways cause we are already
+    # is this bad? yeah. but its functional! and it makes more sense to store strings anyways cause we are already
     # converting implicitly from json string to Bet object so just saves us one loads/dumps call on both encode 
-    # and decode
+    # and decode. basically, if its stupid but it works, it aint stupid.
     def to_json(self) -> str:
         lst = []
-        for bet in self.bets:
-            
-            json_str = bet.to_json()
 
-            obj = {
-                "type": type(bet).__name__,
-                "data": json_str
-            }
-        
+        for bet in self.bets:
+            json_str = bet.to_json()
+            obj = { "type": type(bet).__name__, "data": json_str }
             lst += [obj]
         
         return json.dumps({'bets': lst})
@@ -30,14 +25,17 @@ class Bets:
     def from_json(self, json_string: str) -> None:
         self.bets = []
         lst = json.loads(json_string)['bets']
+
         for obj in lst:
+            # there *has* to be a better was of doing this;.
             match obj['type']:
                 case 'Moneyline':
-                    ml = Moneyline()
-                    ml.from_json(obj['data'])
-                    self.bets += [ml]
-                case _:
+                    bet = Moneyline()
+                case _: # uh oh! someone forgot 
                     raise ValueError('type not recognized')
+            
+            bet.from_json(obj['data'])
+            self.bets += [bet]
 
         
 
@@ -149,6 +147,7 @@ class Moneyline(Bet):
 
 # region Testing
 
+# i'll write actual tests with like assert statements and shiz l8r.
 def test():
     c1 = Competitor()
     c1.name = "steven"
@@ -156,12 +155,12 @@ def test():
     c1.deck_id = 42
     c1.defeated = False
     b1 = Moneyline(2, 5, 12, c1)
-    print(f"converting to json: { str(b1.to_json()) }")
+    print(f"\n\nconverting moneyline to json: { str(b1.to_json()) }")
 
     b1a = Moneyline()
     b1a.from_json(b1.to_json())
-    print(f"converting from json: { b1a.to_json() }")
-    print(f"jsons match: { b1a.to_json() == b1.to_json() }\n")
+    print(f"converting moneyline from json: { b1a.to_json() }")
+    print(f"match? { b1a.to_json() == b1.to_json() }")
 
     c2 = Competitor()
     c2.name = "albert"
@@ -172,11 +171,12 @@ def test():
 
     bets = Bets()
     bets.bets = [b1, b2]
-    print(str(bets.to_json()))
+    print(f'\n\nconverting bets to json:\n{bets.to_json()}\n')
 
     bets2 = Bets()
     bets2.from_json(bets.to_json())
-    print(bets2.to_json())
+    print(f'converting bets from json:\n{bets2.to_json()}\n')
+    print(f'match? {bets.to_json() == bets2.to_json()}')
 
 
 

@@ -11,7 +11,7 @@ class DrawData():
         if json:
             self.from_json(json)
         else:
-            self.image_size=(0,0)
+            self.image_size = (0,0)
             self.lines = []
             self.images = []
     
@@ -21,7 +21,7 @@ class DrawData():
     def to_json(self) -> str:
         return json.dumps(
             self,
-            default=lambda o: o.__dict__, 
+            default=lambda o: o.__dict__, # stole this from stackoverflow, forget where tho srry
             sort_keys=True)
     
     def from_json(self, json_str: str) -> None:
