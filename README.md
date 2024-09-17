@@ -1,4 +1,6 @@
 # Pokemania
+currently live and in beta! [Check it out here!](https://pokemania.app/)
+
 howdy ho gang. building this in (mostly) pure html/css/js w/ flask cause frameworks are for nerdssssss.
 also because im bad at svelte and vue and dont know react or angular lol.
 
